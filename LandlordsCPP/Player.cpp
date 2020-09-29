@@ -1,9 +1,11 @@
 #include "Player.h"
 #include "BaseCards.h"
 
-Player::Player(const std::string& name, int bal):
+Player::Player(const std::string& name, int bal) :
 	name(name),
-	balance(bal)
+	balance(bal),
+	point(0),
+	isFinishOpt(false)
 {
 }
 
@@ -20,9 +22,10 @@ void Player::RemoveCards()
 {
 }
 
-void Player::ClearAllCardStack()
+void Player::ResetAllCardStack()
 {
 	for (auto& cardStack : cards) {
 		cardStack->ReSet();
 	}
+	point = 0;
 }

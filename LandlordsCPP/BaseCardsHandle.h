@@ -10,9 +10,9 @@ public:
 	virtual void Shuffle() = 0;
 
 	//给一幅手牌发一张牌
-	void HandCard(class BaseCards* c);
+	int HandCard(class BaseCards* c);
 	//给一个牌堆数组的一个元素发一张底牌
-	void HandCard(int& cardsEle);
+	int HandCard(int& cardsEle);
 
 	virtual void ComputeAttribute(){}
 

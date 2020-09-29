@@ -2,8 +2,7 @@
 
 BaseGameMode::BaseGameMode():
 	mSession(GameSession::PREPARE),
-	mCardsHandle(nullptr),
-	cur_player(0)
+	mCardsHandle(nullptr)
 {
 }
 

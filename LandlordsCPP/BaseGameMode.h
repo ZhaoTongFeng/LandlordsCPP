@@ -35,6 +35,10 @@ public:
 	void SetSession(GameSession sess) { mSession = sess; }
 	const GameSession& GetSession() const { return mSession; }
 
+	void NextPlayer(){ mCurPlayerIndex = (mCurPlayerIndex + 1) % 3; }
+
+	class Player* GetCurPlayer() { return players[mCurPlayerIndex]; }
+
 protected:
 	//发牌序列
 	virtual void HandCards() = 0;
@@ -48,9 +52,10 @@ protected:
 	//当前对局中的玩家
 	std::vector<class Player*> players;
 
-	//当前玩家下标
-	int cur_player;
+	//当前玩家
+	int mCurPlayerIndex;
 
+	
 	//当前发牌规则
 	class BaseCardsHandle* mCardsHandle;
 

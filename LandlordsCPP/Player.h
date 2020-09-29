@@ -21,7 +21,12 @@ public:
 	void CreateCards(class BaseCards* card);
 	void RemoveCards();
 
-	void ClearAllCardStack();
+	void ResetAllCardStack();
+
+	//叫牌点数
+	int point;
+
+	bool isFinishOpt;
 private:
 //全局数据
 	//玩家昵称
@@ -33,5 +38,10 @@ private:
 //对局数据
 	//手牌，由游戏规则制定手牌数量，切换游戏时需要重置
 	std::vector<class BaseCards*> cards;
+
+	
+
+
+
 };
 

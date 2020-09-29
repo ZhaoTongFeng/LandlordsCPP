@@ -18,12 +18,18 @@ BaseCardsHandle::~BaseCardsHandle()
 	delete[] cards;
 }
 
-void BaseCardsHandle::HandCard(BaseCards* c)
+int BaseCardsHandle::HandCard(BaseCards* c)
 {
-	c->PushCard(cards[cards_ptr--]);
+	int n = cards[cards_ptr];
+	c->PushCard(n);
+	cards_ptr--;
+	return n;
 }
 
-void BaseCardsHandle::HandCard(int& cardsEle)
+int BaseCardsHandle::HandCard(int& cardsEle)
 {
-	cardsEle = cards[cards_ptr--];
+	int n = cards[cards_ptr];
+	cardsEle = n;
+	cards_ptr--;
+	return n;
 }
