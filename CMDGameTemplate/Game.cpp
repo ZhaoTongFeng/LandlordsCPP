@@ -1,8 +1,12 @@
 #include "Game.h"
+#include "GameMode.h"
 
 bool Game::Initialize()
 {
+	std::ios::sync_with_stdio(false);
 	tickCount = clock();
+
+	gameMode = new GameMode();
 	return true;
 }
 
@@ -17,21 +21,13 @@ void Game::Loop()
 
 void Game::Shutdown()
 {
-
+	delete gameMode;
 }
 
 void Game::ProcessInput()
 {
 	//处理输入
-	if (_kbhit()){
-		update = false;
-		int key = _getch();
-		if (key == 'a') {
-			//TEST
-			std::cout << "a" << std::endl;
-			update = true;
-		}
-	}
+	gameMode->ProcessInput();
 }
 
 void Game::UpdateGame()
@@ -42,25 +38,13 @@ void Game::UpdateGame()
 	//计算时间步长
 	float deltaTime = static_cast<float>((currentTick - tickCount)) / CLOCKS_PER_SEC;
 	tickCount = currentTick;
-
-	//TEST
-	//update = true;
-
-	//检测是否需要更新游戏
-	if (!update) { return; }
+	gameMode->UpdateGame(deltaTime);
 }
 
 void Game::GenerateOutput() {
-	//检测是否需要重新绘制
-	if (!update) { return; }
-
 	//输出图像
 	system("cls");//清屏
-
-	//TEST
-	std::cout << tickCount << std::endl;
-
-	//重置更新
-	update = false;
+	std::string str = "";
+	gameMode->GenerateOutput(str);
+	std::cout << str;
 }
-

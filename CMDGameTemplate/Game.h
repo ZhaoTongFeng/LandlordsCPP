@@ -15,6 +15,8 @@ public:
 	//游戏结束
 	void Shutdown();
 
+	class GameMode* GetGameMode() { return gameMode; }
+
 private:
 	//按键输入
 	void ProcessInput();
@@ -33,4 +35,7 @@ private:
 
 	//累计毫秒数，
 	long tickCount, currentTick;
+
+	class GameMode* gameMode;
+
 };

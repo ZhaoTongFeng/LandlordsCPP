@@ -13,6 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="头文件\Base">
+      <UniqueIdentifier>{864fa44b-8acb-4065-89be-421391f1752f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Base">
+      <UniqueIdentifier>{dfbb91a2-f50d-4488-acf7-c4e4b4534826}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\Landlords">
+      <UniqueIdentifier>{0cd1d691-6a6b-4ccd-a8e1-7d03837e92f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Landlords">
+      <UniqueIdentifier>{d9a5c5be-8371-46c7-8d07-c1ab50b9bb6a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -21,10 +33,52 @@
     <ClCompile Include="Game.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="BaseCards.cpp">
+      <Filter>源文件\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseCardsHandle.cpp">
+      <Filter>源文件\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="BaseGameMode.cpp">
+      <Filter>源文件\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Cards.cpp">
+      <Filter>源文件\Landlords</Filter>
+    </ClCompile>
+    <ClCompile Include="CardsHandle.cpp">
+      <Filter>源文件\Landlords</Filter>
+    </ClCompile>
+    <ClCompile Include="GameMode.cpp">
+      <Filter>源文件\Landlords</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>源文件\Landlords</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseCards.h">
+      <Filter>头文件\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseCardsHandle.h">
+      <Filter>头文件\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseGameMode.h">
+      <Filter>头文件\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Cards.h">
+      <Filter>头文件\Landlords</Filter>
+    </ClInclude>
+    <ClInclude Include="CardsHandle.h">
+      <Filter>头文件\Landlords</Filter>
+    </ClInclude>
+    <ClInclude Include="GameMode.h">
+      <Filter>头文件\Landlords</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>头文件\Base</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
