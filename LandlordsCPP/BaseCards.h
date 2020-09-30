@@ -30,10 +30,10 @@ public:
 	void SetIsFinish(bool fin) { isFinish = fin; }
 
 	//排序，不看花色只看点数，先扫描一遍查看是否有大小王，如果有放到最左侧，再对剩下的牌进行自然排序
+	void SortCards();
+	
 
-	//出牌之后将右边的全部往左移
-
-	//出牌时，将选中的牌放到一个列表中，检测是否符合牌型，并记录牌型
+	
 
 protected:
 	//手牌

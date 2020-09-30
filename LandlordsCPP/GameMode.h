@@ -35,10 +35,18 @@ protected:
     //叫牌点数
     int inputPoint;
 
+    //出牌
+    //将选中的牌放到一个列表中，检测是否符合牌型，并记录牌型
     bool gate = false;
     std::string mCardsBuffer;
     int mPreOutCards[20];
     int mPreOutCardsCount = 0;
+
+    //一个出牌回合的开始不能不出牌
+    bool isStart = true;
+
+    //两家不要牌则判定为新回合开始
+    int mMissCount = 0;
 
 };
 

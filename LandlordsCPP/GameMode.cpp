@@ -78,17 +78,28 @@ void GameMode::ProcessInput()
 			break;
 			
 		case GameSession::PLAYING:
+			//开始出牌
 			if (key == 'b') {
 				gate = true;
 			}
-			if (gate) {
-				while (mCardsBuffer!="e")
-				{
-					std::cin >> mCardsBuffer;
-					std::stoi(mCardsBuffer);
-				}
-				gate = false;
+			//清除选择
+			if (key == 'c') {
+				mPreOutCardsCount = 0;
 			}
+			//不出牌
+			if (key == 'n') {
+				NextPlayer();
+				mPreOutCardsCount = 0;
+			}
+			//确定出牌
+			if (key == 'h') {
+				Cards* ca = dynamic_cast<Cards*>(GetCurPlayer()->GetCardStack());
+				ca->OutCards(mPreOutCards, mPreOutCardsCount);
+				NextPlayer();
+				mPreOutCardsCount = 0;
+			}
+
+
 
 			
 			break;
@@ -185,6 +196,20 @@ void GameMode::UpdateGame(float deltaTime)
 		}
 		break;
 	case GameSession::PLAYING:
+		if (gate) {
+			while (true)
+			{
+				std::cin >> mCardsBuffer;
+				if (mCardsBuffer != "e") {
+					mPreOutCards[mPreOutCardsCount++] = std::stoi(mCardsBuffer);
+				}
+				else {
+					break;
+				}
+				mCardsBuffer = "";
+			}
+			gate = false;
+		}
 		break;
 	case GameSession::FINISH:
 		break;
@@ -216,8 +241,8 @@ void GameMode::GenerateOutput(std::string& str)
 
 
 		for (int i = 0; i < 3; i++) {
-			cardsStackCount = players[i]->GetCards()[0]->GetCardsCount();
-			cardsStack = players[i]->GetCards()[0]->GetCards();
+			cardsStackCount = players[i]->GetCardStack()->GetCardsCount();
+			cardsStack = players[i]->GetCardStack()->GetCards();
 			str += "玩家名称：" + players[i]->GetName() + "\n";
 			str += "手牌数量：" + std::to_string(cardsStackCount) + "\n";
 			str += "玩家叫牌：" + std::to_string(players[i]->point) + "\n";
@@ -235,8 +260,8 @@ void GameMode::GenerateOutput(std::string& str)
 	}
 
 	str += "当前玩家：" + GetCurPlayer()->GetName() + "\n";
-	cardsStackCount = GetCurPlayer()->GetCards()[0]->GetCardsCount();
-	cardsStack = GetCurPlayer()->GetCards()[0]->GetCards();
+	cardsStackCount = GetCurPlayer()->GetCardStack()->GetCardsCount();
+	cardsStack = GetCurPlayer()->GetCardStack()->GetCards();
 
 	str += "手牌数量：" + std::to_string(cardsStackCount) + "\n";
 	str += "玩家手牌：";
@@ -269,7 +294,12 @@ void GameMode::GenerateOutput(std::string& str)
 	case GameSession::PLAYING:
 		str += "出牌阶段\n";
 		str += "地主名称：" + players[mLandlordsIndex]->GetName()+"\n";
-		str += "输入牌面编码序列。D：不要。F：出牌\n";
+		str += "n：不要\tb：选择要出的牌\th：确定出牌\tc：清除出牌\t\n";
+		str += "已选：\n";
+		for (int i = 0; i < mPreOutCardsCount; i++) {
+			str += std::to_string(mPreOutCards[i])+"\t"+BaseCards::GetCardName(cardsStack[mPreOutCards[i]]) + "\n";
+		}
+		str += "\n";
 		str += "玩家手牌：\n";
 		for (int i = 0; i < cardsStackCount; i++) {
 			str += std::to_string(i) +"\t"+ BaseCards::GetCardName(cardsStack[i]) + "\n";
@@ -305,11 +335,15 @@ void GameMode::HandCards()
 	//剩下牌循环发给玩家
 	while (!mCardsHandle->isEmpty())
 	{
-		int n = mCardsHandle->HandCard(players[i]->GetCards()[0]);
+		int n = mCardsHandle->HandCard(players[i]->GetCardStack());
 		if (n != 53 && n != 54 && n % 54 == 10) {
 			mCurPlayerIndex = i;
 		}
 		i = (i + 1) % 3;
+	}
+	//进行排序
+	for (i = 0; i < 3; i++) {
+		players[i]->GetCardStack()->SortCards();
 	}
 }
 

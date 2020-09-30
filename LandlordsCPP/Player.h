@@ -17,16 +17,22 @@ public:
 	void SetName(const std::string& newname) { name = newname; }
 
 	//手牌容器操作
+	class BaseCards* GetCardStack(int i = 0) { return cards[i]; }
 	std::vector<class BaseCards*>& GetCards(){ return cards; }
+	
 	void CreateCards(class BaseCards* card);
 	void RemoveCards();
 
+	
 	void ResetAllCardStack();
 
 	//叫牌点数
 	int point;
 
 	bool isFinishOpt;
+
+	
+
 private:
 //全局数据
 	//玩家昵称

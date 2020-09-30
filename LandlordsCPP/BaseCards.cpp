@@ -76,3 +76,50 @@ void BaseCards::PushCard(int n)
     cards[cards_count++] = n;
     ComputeAttribute();
 }
+
+void BaseCards::SortCards()
+{
+    if (cards_count < 2) {
+        return;
+    }
+    //int lj = -1;
+    //int bj = -1;
+    //for (int i = 0; i < cards_count; i++) {
+    //    if (cards[i] == 53) {
+    //        lj = i;
+    //        break;
+    //    }
+    //}
+    int num=0;
+    int temp;
+    //if (bj != 0) {
+    //    num++;
+    //    temp = cards[0];
+    //    cards[0] = cards[bj];
+    //    cards[bj] = temp;
+    //}
+    //for (int i = 0; i < cards_count; i++) {
+    //    if (cards[i] == 54) {
+    //        bj = i;
+    //        break;
+    //    }
+    //}
+    //if (lj != 0) {
+    //    num++;
+    //    temp = cards[1];
+    //    cards[1] = cards[lj];
+    //    cards[lj] = temp;
+    //}
+    
+    //跳过大小王进行排序
+    for (int i = num; i < cards_count-num; i++) {
+        for (int j = cards_count - num - 1; j > i + num; j--) {
+            if (cards[j - 1]%13 < cards[j]%13) {
+                temp = cards[j - 1];
+                cards[j - 1] = cards[j];
+                cards[j] = temp;
+            }
+        }
+    }
+
+}
