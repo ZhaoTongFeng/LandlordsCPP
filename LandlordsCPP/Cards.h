@@ -10,13 +10,17 @@ enum class CardsEnum
     AAA,
     AAAA,//4张牌，检测首和尾是否相等
     AAAB,
+
     //以5为分界线,5张及以上都要先检测顺子
     ABCDE,//先检测单顺子，首先检测是否连续
     AAABB,//倒数第二张是否相同
     AAAAB,
+
     AAAABC,//四张相同
+
     AABBCC,//所有点数都是对子
     AAABBB,//所有点数都是三张
+
     AAABBBCD,//
     ERR
 };
@@ -25,11 +29,11 @@ enum class CardsEnum
 //飞机和四代二
 struct CardsMode
 {
-    //1-4张牌出现的次数
-    int A[4];
+    //0-4张牌出现的次数
+    int A[5];
 
     //出牌的模式
-    CardsEnum mCardsEnum;
+    CardsEnum mCardsEnum = CardsEnum::ERR;
 
     //出的牌
     int* arr;
