@@ -1,13 +1,13 @@
 #pragma once
-#include "BaseCardsHandle.h"
+
+#include "CardsBuffer.h"
+
+//∫…πŸ
+//œ¥≈∆£¨∑¢≈∆£¨Ω·À„
 class CardsHandle :
-    public BaseCardsHandle
+    public CardsBuffer
 {
 public:
-    CardsHandle(const int maxCount);
-    ~CardsHandle();
-    void Shuffle()override;
-    //void HandCard(class BaseCards* c)override;
-    void ComputeAttribute()override;
+    CardsHandle(const int size);
 };
 

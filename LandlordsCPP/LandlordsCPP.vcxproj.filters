@@ -54,6 +54,12 @@
     <ClCompile Include="Player.cpp">
       <Filter>源文件\Landlords</Filter>
     </ClCompile>
+    <ClCompile Include="CardsBuffer.cpp">
+      <Filter>源文件\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Util.cpp">
+      <Filter>源文件\Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -78,6 +84,12 @@
       <Filter>头文件\Landlords</Filter>
     </ClInclude>
     <ClInclude Include="Player.h">
+      <Filter>头文件\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="CardsBuffer.h">
+      <Filter>头文件\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Util.h">
       <Filter>头文件\Base</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,12 +1,15 @@
 #pragma once
 #include "BaseGameMode.h"
 
+//叫牌状态
 enum class CallState
 {
     NO,
     CALL,
     Rob
 };
+
+
 
 class GameMode :
     public BaseGameMode
@@ -21,32 +24,42 @@ protected:
     void HandCards()override;
     void Settle()override;
 
+    void ReStart()override;
+
     //叫牌状态
-    CallState mCallState;
-    //记录参与叫牌的人数
+    CallState mCallState = CallState::NO;
+
+    //参与叫牌的人数
     int mCallArr[3]{ 0 };
     int mCallArrCount = 0;
+
     //标记叫地主的玩家
-    int mLandlordsIndex;
+    int mLandlordsIndex = -1;
+
+    //三张底牌
+    int mDarkCards[3]{ 0 };
 
     //叫牌次数，小于等于四次
-    int numCall;
+    int numCall = 0;
 
     //叫牌点数
-    int inputPoint;
-
+    int inputPoint = -1;
+    ////////////////////////////////////////
     //出牌
     //将选中的牌放到一个列表中，检测是否符合牌型，并记录牌型
     bool gate = false;
-    std::string mCardsBuffer;
-    int mPreOutCards[20];
-    int mPreOutCardsCount = 0;
-
-    //一个出牌回合的开始不能不出牌
-    bool isStart = true;
 
     //两家不要牌则判定为新回合开始
     int mMissCount = 0;
+
+    //上一出牌
+    class Cards* mLastCards = nullptr;
+
+    //准备出的牌
+    //将选择的牌放到这儿
+    class Cards* mPreCards = nullptr;
+
+
 
 };
 

@@ -35,5 +35,8 @@ protected:
 	int cards_ptr;
 
 	int MAX_CARDS_COUNT;
+
+
+
 };
 

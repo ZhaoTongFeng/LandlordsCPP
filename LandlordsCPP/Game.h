@@ -36,6 +36,6 @@ private:
 	//累计毫秒数，
 	long tickCount, currentTick;
 
-	class GameMode* gameMode;
+	class BaseGameMode* gameMode;
 
 };

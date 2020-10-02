@@ -40,6 +40,9 @@ public:
 	class Player* GetCurPlayer() { return players[mCurPlayerIndex]; }
 
 protected:
+	//重启游戏
+	virtual void ReStart() = 0;
+
 	//发牌序列
 	virtual void HandCards() = 0;
 
@@ -47,25 +50,44 @@ protected:
 	virtual void Settle() = 0;
 
 	//游戏阶段
-	GameSession mSession;
+	GameSession mSession = GameSession::PREPARE;
 
 	//当前对局中的玩家
 	std::vector<class Player*> players;
 
 	//当前玩家
-	int mCurPlayerIndex;
+	int mCurPlayerIndex = 0;
 
 	
 	//当前发牌规则
-	class BaseCardsHandle* mCardsHandle;
+	class CardsBuffer* mCardsHandle = nullptr;
 
-	//三张底牌
-	int mDarkCards[3]{ 0 };
 
 	//玩家最大手牌数量
-	int MAX_CARDS_COUNT;
+	int MAX_CARDS_COUNT = 0;
 
 	//调试模式
-	bool isDebug;
+	bool isDebug = true;
+
+	///////////////
+	//结算
+
+	//结算是否结束
+	bool isFinish = false;
+
+	//胜利的队伍
+	int winTeam = 0;
+
+	//结算结果
+	std::string mSettleContent;
+
+	//倍数
+	int rate = 1;
+
+	//底分
+	int baseBet = 100;
+
+	//抽水
+	int water =20;
 };
 

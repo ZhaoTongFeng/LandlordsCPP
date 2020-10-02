@@ -1,6 +1,7 @@
 #pragma once
-#include "BaseCards.h"
+
 #include <vector>
+#include "CardsBuffer.h"
 
 enum class CardsEnum
 {
@@ -14,6 +15,7 @@ enum class CardsEnum
     //以5为分界线,5张及以上都要先检测顺子
     ABCDE,//先检测单顺子，首先检测是否连续
     AAABB,//倒数第二张是否相同
+    AAABC,//倒数第二张是否相同
     AAAAB,
 
     AAAABC,//四张相同
@@ -26,30 +28,39 @@ enum class CardsEnum
 };
 
 
-//飞机和四代二
-struct CardsMode
-{
-    //0-4张牌出现的次数
-    int A[5];
-
-    //出牌的模式
-    CardsEnum mCardsEnum = CardsEnum::ERR;
-
-    //出的牌
-    int* arr;
-
-    //张数
-    int num;
-};
+//玩家手牌，打出的牌
 
 class Cards :
-    public BaseCards
+    public CardsBuffer
 {
 public:
+
     Cards(const int num_cards);
-    ~Cards();
-    void ComputeAttribute()override;
-    //出牌之后将右边的全部往左移。不需要左移，只需要将没有被打出的牌按照原本的顺序添加到新的数组中
-    bool OutCards(int* arr,int count);
+    Cards(Cards* target);
+
+    void MakeEmpty() override;
+    
+    //获取牌型名称
+    const CardsEnum& GetCardsMode() { return mCardsEnum; }
+    string GetCardsModeName()override;
+
+    //计算当前的牌型
+    void ComputeCardsMode()override;
+
+    //比较两个牌型
+    bool Compare(CardsBuffer* A, CardsBuffer* B)override;
+
+    //打牌
+    //玩家的牌，待出的牌，上一出牌
+    //先检测待出的牌的牌型
+    //和上一出牌进行比较
+    //如果允许出牌，则将待出的牌出玩家手牌中移动到上一出牌
+    //出牌可以看成将牌从这份牌转移到另一份牌
+    bool OutCards(Cards* cards_pre, Cards* cards_last);
+
+private:
+
+    //当前牌型
+    CardsEnum mCardsEnum = CardsEnum::ERR;
 };
 
