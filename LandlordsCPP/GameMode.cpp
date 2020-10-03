@@ -3,10 +3,8 @@
 #include <iostream>
 
 #include "Player.h"
-
 #include "CardsHandle.h"
 #include "Cards.h"
-
 #include "Util.h"
 
 #ifndef TOTAL_COUNT
@@ -17,8 +15,12 @@
 GameMode::GameMode()
 {
 	MAX_CARDS_COUNT = 20;
-	mLastCards = nullptr;
-	mPreCards = nullptr;
+
+	//三张底牌
+	mDarkCards = new Cards(3);
+
+	//模拟选择游戏类型
+	mCardsHandle = new CardsHandle(TOTAL_COUNT);
 
 	//模拟玩家加入游戏
 	Player* p = nullptr;
@@ -27,9 +29,6 @@ GameMode::GameMode()
 		p = new Player("Player-" + std::to_string(i), 1000);
 		players.emplace_back(p);
 	}
-	
-	//模拟选择游戏类型
-	mCardsHandle = new CardsHandle(TOTAL_COUNT);
 
 	//模拟根据游戏类型，分配手牌
 	Cards* c = nullptr;
@@ -41,12 +40,11 @@ GameMode::GameMode()
 }
 
 
-void GameMode::ReStart()
-{
+void GameMode::ReStart() {
+	//发牌
+	mDarkCards->MakeEmpty();
+
 	//叫牌
-	for (int i = 0; i < 3; i++) {
-		mDarkCards[i] = 0;
-	}
 	numCall = 0;
 	mCallState = CallState::NO;
 	mLandlordsIndex = -1;
@@ -56,31 +54,35 @@ void GameMode::ReStart()
 	//出牌
 	mMissCount = 0;
 	gate = false;
+
 	if (mLastCards) {
 		delete mLastCards;
 		mLastCards = nullptr;
 	}
 	if (mPreCards) {
-		delete mPreCards;
-		mPreCards = new Cards(MAX_CARDS_COUNT);
+		mPreCards->MakeEmpty();
 	}
 	else {
 		mPreCards = new Cards(MAX_CARDS_COUNT);
 	}
-	//结算
-	mSettleContent = "";
-	rate = 1;
-	baseBet = 100;
-	water = 20;
 }
 
+void GameMode::HandCards()
+{
+	mCurPlayerIndex = dynamic_cast<CardsHandle*>(mCardsHandle)->HandCards(players, mDarkCards);
+}
+
+void GameMode::Settle()
+{
+	dynamic_cast<CardsHandle*>(mCardsHandle)->Settle(players, winTeam, mLandlordsIndex);
+}
 
 
 GameMode::~GameMode()
 {
-	for (int i = 0; i < 3; i++) {
-		delete players[i];
-	}
+	delete mLastCards;
+	delete mPreCards;
+	delete mDarkCards;
 }
 
 
@@ -250,10 +252,9 @@ void GameMode::UpdateGame(float deltaTime)
 				//跳转出牌阶段，设置当前玩家为地主，将底牌发送到地主，重新进行排序
 				mSession = GameSession::PLAYING;
 				mCurPlayerIndex = mLandlordsIndex;
-				for (int i = 0; i < 3; i++) {
-					GetCurPlayer()->GetCardStack()->Push(mDarkCards[i]);
-				}
-				GetCurPlayer()->GetCardStack()->SortRank();
+				mDarkCards->Pop(GetCurPlayer()->GetCardStack(), 3);
+
+				GetCurPlayer()->GetCardStack()->SortRank(false);
 				//分组
 				GetCurPlayer()->team = 1;
 				NextPlayer();
@@ -296,27 +297,24 @@ void GameMode::UpdateGame(float deltaTime)
 
 void GameMode::GenerateOutput(std::string& str)
 {
-	int cardsStackCount;
-	const int* cardsStack;
+
 	if (isDebug) {
 		str += "*****************************\n";
-		cardsStack = mCardsHandle->GetBuf();
-		cardsStackCount = mCardsHandle->GetSize();
-		str += "牌堆牌数：" + std::to_string(cardsStackCount) + "\n";
+		str += "牌堆牌数：" + std::to_string(mCardsHandle->GetSize()) + "\n";
 		str += "牌堆牌面：";
-		str += Util::GetPrintName(cardsStack, cardsStackCount);
+		str += mCardsHandle->GetPrintName();
 
 		str += "三张底牌：";
-		str += Util::GetPrintName(mDarkCards, 3);
+		str += mDarkCards->GetPrintName();
 
 
 
 		for (int i = 0; i < 3; i++) {
-			cardsStackCount = players[i]->GetCardStack()->GetSize();
-			cardsStack = players[i]->GetCardStack()->GetBuf();
+			CardsBuffer* cb = players[i]->GetCardStack();
+
 			str += "玩家名称：" + players[i]->GetName() + "\t";
 			str += "积分：" + std::to_string(players[i]->GetBalance()) + "\t";
-			str += "手牌数量：" + std::to_string(cardsStackCount) + "\t";
+			str += "手牌数量：" + std::to_string(cb->GetSize()) + "\t";
 			str += "队伍：";
 			if (players[i]->team == 1) {
 				str += "地主\n";
@@ -328,24 +326,23 @@ void GameMode::GenerateOutput(std::string& str)
 				str += "未知\n";
 			}
 			str += "手牌：";
-			str += Util::GetPrintName(cardsStack, cardsStackCount);
+			str += cb->GetPrintName();
+
 		}
 		str += "*****************************\n";
 	}
 
-
-	cardsStackCount = GetCurPlayer()->GetCardStack()->GetSize();
-	cardsStack = GetCurPlayer()->GetCardStack()->GetBuf();
-
+	CardsBuffer* cb = GetCurPlayer()->GetCardStack();
 
 	if (mLandlordsIndex != -1) {
 		str += "地主名称：" + players[mLandlordsIndex]->GetName() + "\n";
 	}
 	str += "当前玩家：" + GetCurPlayer()->GetName() + "\n";
-
-	str += "手牌数量：" + std::to_string(cardsStackCount) + "\n";
+	str += "手牌数量：" + std::to_string(cb->GetSize()) + "\n";
 	str += "玩家手牌：";
-	str += Util::GetPrintName(cardsStack, cardsStackCount);
+	str += cb->GetPrintName();
+
+
 
 
 
@@ -373,7 +370,7 @@ void GameMode::GenerateOutput(std::string& str)
 		
 		str += "上一次出牌：";
 		if (mLastCards) {
-			str += Util::GetPrintName(mLastCards->GetBuf(), mLastCards->GetSize());
+			str += mLastCards->GetPrintName();
 			str += "牌型：" + mLastCards->GetCardsModeName() + "\n";
 		}
 		else {
@@ -391,7 +388,7 @@ void GameMode::GenerateOutput(std::string& str)
 		
 		str += "牌型：" + mPreCards->GetCardsModeName() + " ";
 		str += "已选：\n";
-		str += Util::GetPrintName(mPreCards->GetBuf(), mPreCards->GetSize());
+		str += mPreCards->GetPrintName();
 
 
 
@@ -405,74 +402,11 @@ void GameMode::GenerateOutput(std::string& str)
 		else {
 			str += "农民胜利！\n";
 		}
-		//str += mSettleContent;
+		str += mSettleContent;
 		break;
 	default:
 		break;
 	}
 }
 
-void GameMode::HandCards()
-{
-	int i;
-	//先将所有玩家手牌清空
-	for (i = 0; i < 3; i++) {
-		players[i]->ResetAllCardStack();
-	}
-	//接着洗牌
-	mCardsHandle->Shuffle();
-
-	//最后发牌
-	//先留三张底牌
-	for (i = 0; i < 3; i++) {
-		mCardsHandle->Pop(mDarkCards[i]);
-	}
-	i = 0;
-	//剩下牌循环发给玩家
-	while (!mCardsHandle->IsEmpty())
-	{
-		int n;
-		mCardsHandle->Pop(n);
-		players[i]->GetCardStack()->Push(n);
-		if (n != 53 && n != 54 && n % 54 == 10) {
-			mCurPlayerIndex = i;
-		}
-		i = (i + 1) % 3;
-	}
-	//进行排序
-	for (i = 0; i < 3; i++) {
-		players[i]->GetCardStack()->SortRank();
-	}
-}
-
-void GameMode::Settle()
-{
-	mCurPlayerIndex = mLandlordsIndex;
-	Player* player = GetCurPlayer();
-	
-	int dou_coin, sig_coin;
-	dou_coin = rate * baseBet - water;
-	sig_coin = static_cast<int>(static_cast<float>(dou_coin) / 2.0f);
-	if (winTeam == 1) {
-		player->ChangeBalance(dou_coin);
-		mSettleContent += "地主：" + player->GetName() + "+" + to_string(dou_coin) + "\n";
-		for (int i = 0; i < 2; i++) {
-			NextPlayer();
-			player = GetCurPlayer();
-			player->ChangeBalance(-1 * sig_coin);
-			mSettleContent += "农民：" + player->GetName() + "-" + to_string(sig_coin) + "\n";
-		}
-		
-	}
-	else if (winTeam == 2) {
-		player->ChangeBalance(-1* dou_coin);
-		mSettleContent += "地主：" + player->GetName() + "-" + to_string(dou_coin) + "\n";
-		for (int i = 0; i < 2; i++) {
-			NextPlayer();
-			player = GetCurPlayer();
-			player->ChangeBalance(sig_coin);
-			mSettleContent += "农民：" + player->GetName() + "+" + to_string(sig_coin) + "\n";
-		}
-	}
-}
 

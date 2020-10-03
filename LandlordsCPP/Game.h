@@ -15,7 +15,7 @@ public:
 	//游戏结束
 	void Shutdown();
 
-	class GameMode* GetGameMode() { return gameMode; }
+	class BaseGameMode* GetGameMode() { return gameMode; }
 
 private:
 	//按键输入
@@ -26,6 +26,10 @@ private:
 	
 	//输出图像
 	void GenerateOutput();
+
+
+
+
 
 	//游戏是否结束
 	bool isRunning = true;

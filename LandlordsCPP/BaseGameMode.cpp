@@ -8,4 +8,8 @@ BaseGameMode::BaseGameMode():
 
 BaseGameMode::~BaseGameMode()
 {
+	for (int i = 0; i < players.size(); i++) {
+		delete players[i];
+	}
+	delete mCardsHandle;
 }

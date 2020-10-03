@@ -15,7 +15,7 @@ public:
 	class CardsBuffer* GetCardStack(int i = 0) { return cards[i]; }
 	std::vector<class CardsBuffer*>& GetCards(){ return cards; }
 	void CreateCards(class CardsBuffer* card);
-	void RemoveCards();
+	void RemoveCards() {};
 	void ResetAllCardStack();
 
 	//队伍
@@ -30,6 +30,9 @@ public:
 
 	const std::string& GetName() const { return name; }
 	void SetName(const std::string& newname) { name = newname; }
+
+
+
 private:
 //全局数据
 	//玩家昵称

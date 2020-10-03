@@ -31,13 +31,18 @@ public:
 	//输出图像
 	virtual void GenerateOutput(std::string& str) = 0;
 
+
+	//循环获取下一个操作的玩家
+	void NextPlayer() { mCurPlayerIndex = (mCurPlayerIndex + 1) % 3; }
+	//当前操作的玩家
+	class Player* GetCurPlayer() { return players[mCurPlayerIndex]; }
+
+
 	//Setter/Getter
 	void SetSession(GameSession sess) { mSession = sess; }
 	const GameSession& GetSession() const { return mSession; }
 
-	void NextPlayer(){ mCurPlayerIndex = (mCurPlayerIndex + 1) % 3; }
 
-	class Player* GetCurPlayer() { return players[mCurPlayerIndex]; }
 
 protected:
 	//重启游戏
@@ -52,15 +57,17 @@ protected:
 	//游戏阶段
 	GameSession mSession = GameSession::PREPARE;
 
+
 	//当前对局中的玩家
 	std::vector<class Player*> players;
-
 	//当前玩家
 	int mCurPlayerIndex = 0;
 
-	
 	//当前发牌规则
 	class CardsBuffer* mCardsHandle = nullptr;
+
+
+
 
 
 	//玩家最大手牌数量
@@ -81,13 +88,6 @@ protected:
 	//结算结果
 	std::string mSettleContent;
 
-	//倍数
-	int rate = 1;
 
-	//底分
-	int baseBet = 100;
-
-	//抽水
-	int water =20;
 };
 

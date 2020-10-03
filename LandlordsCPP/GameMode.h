@@ -17,27 +17,34 @@ class GameMode :
 public:
     GameMode();
     ~GameMode();
+
     void ProcessInput()override;
+
     void UpdateGame(float deltaTime)override;
+
     void GenerateOutput(std::string& str)override;
+
 protected:
     void HandCards()override;
+
     void Settle()override;
 
     void ReStart()override;
+    ////////////////////////////////////
+    //发牌
 
+    //三张底牌
+    class Cards* mDarkCards = nullptr;
+    /////////////////////////////////////
     //叫牌状态
     CallState mCallState = CallState::NO;
 
-    //参与叫牌的人数
+    //参与叫牌的人数及其下标，第一个人为叫地主的人
     int mCallArr[3]{ 0 };
     int mCallArrCount = 0;
 
     //标记叫地主的玩家
     int mLandlordsIndex = -1;
-
-    //三张底牌
-    int mDarkCards[3]{ 0 };
 
     //叫牌次数，小于等于四次
     int numCall = 0;
@@ -58,8 +65,6 @@ protected:
     //准备出的牌
     //将选择的牌放到这儿
     class Cards* mPreCards = nullptr;
-
-
 
 };
 

@@ -40,9 +40,7 @@ public:
 
     void MakeEmpty() override;
     
-    //获取牌型名称
-    const CardsEnum& GetCardsMode() { return mCardsEnum; }
-    string GetCardsModeName()override;
+
 
     //计算当前的牌型
     void ComputeCardsMode()override;
@@ -58,6 +56,10 @@ public:
     //出牌可以看成将牌从这份牌转移到另一份牌
     bool OutCards(Cards* cards_pre, Cards* cards_last);
 
+
+    //获取牌型名称
+    const CardsEnum& GetCardsMode() { return mCardsEnum; }
+    string GetCardsModeName()override;
 private:
 
     //当前牌型

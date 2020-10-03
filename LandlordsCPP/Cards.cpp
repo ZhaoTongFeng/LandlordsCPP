@@ -42,15 +42,15 @@ void Cards::ComputeCardsMode()
 	mCardsEnum = CardsEnum::ERR;
 
 	//各个点数出现的张数
-	int* arr_nums = nullptr;
+	int* arr_nums = new int[RANK_COUNT]{ 0 };
 	//0张 1张 2张 3张 4张出现的次数（注意：因为大小王的分开的，所以对王会被当成2张单牌）
-	int* arr_times = nullptr;
+	int* arr_times = new int[TIMES_COUNT]{ 0 };
 	//最小点数下标
 	int startIndex = 0;
 	
 	//对打出的牌按照张数进行排序
 	//此时相同张数从小到大进行排序
-	if (GetSize() > 1) {
+	if (size > 1) {
 		SortNum(true);
 	}
 	GetNumsAndTimes(arr_nums, arr_times, startIndex);
@@ -120,8 +120,8 @@ void Cards::ComputeCardsMode()
 		}
 	}
 
-	delete arr_nums;
-	delete arr_times;
+	delete[] arr_nums;
+	delete[] arr_times;
 }
 
 bool Cards::Compare(CardsBuffer* A, CardsBuffer* B)

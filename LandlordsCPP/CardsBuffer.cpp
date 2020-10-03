@@ -76,12 +76,38 @@ void CardsBuffer::SortNum(bool littleFirst)
     Util::SortNum(buf, GetSize(), littleFirst);
 }
 
-int* CardsBuffer::GetNums()
+
+
+void CardsBuffer::GetNums(int* arr_nums)
 {
-    return GetSize() == 0 ? nullptr : Util::GetNums(buf, GetSize());
+    int size = GetSize();
+    for (int i = 0; i < size; i++) {
+        arr_nums[Util::GetCardRank(buf[i])]++;
+    }
 }
 
 void CardsBuffer::GetNumsAndTimes(int* arr_nums, int* arr_times, int& index_beg)
 {
-    Util::GetNumsAndTimes(buf, GetSize(), arr_nums, arr_times, index_beg);
+    index_beg = 0;
+    GetNums(arr_nums);
+
+    for (int i = 0; i < RANK_COUNT; i++) {
+        if (index_beg == 0 && arr_nums[i] != 0) {
+            index_beg = i;
+        }
+        arr_times[arr_nums[i]]++;
+    }
+}
+
+
+
+std::string CardsBuffer::GetPrintSource()
+{
+    return Util::GetPrintSource(buf, GetSize());
+}
+
+
+std::string CardsBuffer::GetPrintName()
+{
+    return Util::GetPrintName(buf, GetSize());
 }

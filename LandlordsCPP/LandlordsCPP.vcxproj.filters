@@ -30,15 +30,6 @@
     <ClCompile Include="Main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Game.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="BaseCards.cpp">
-      <Filter>源文件\Base</Filter>
-    </ClCompile>
-    <ClCompile Include="BaseCardsHandle.cpp">
-      <Filter>源文件\Base</Filter>
-    </ClCompile>
     <ClCompile Include="BaseGameMode.cpp">
       <Filter>源文件\Base</Filter>
     </ClCompile>
@@ -60,17 +51,11 @@
     <ClCompile Include="Util.cpp">
       <Filter>源文件\Base</Filter>
     </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>源文件\Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Game.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseCards.h">
-      <Filter>头文件\Base</Filter>
-    </ClInclude>
-    <ClInclude Include="BaseCardsHandle.h">
-      <Filter>头文件\Base</Filter>
-    </ClInclude>
     <ClInclude Include="BaseGameMode.h">
       <Filter>头文件\Base</Filter>
     </ClInclude>
@@ -90,6 +75,9 @@
       <Filter>头文件\Base</Filter>
     </ClInclude>
     <ClInclude Include="Util.h">
+      <Filter>头文件\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
       <Filter>头文件\Base</Filter>
     </ClInclude>
   </ItemGroup>

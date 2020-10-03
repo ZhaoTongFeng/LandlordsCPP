@@ -1,5 +1,5 @@
 #include "Player.h"
-#include "BaseCards.h"
+
 #include "CardsBuffer.h"
 
 Player::Player(const std::string& name, int bal) :
@@ -12,15 +12,14 @@ Player::Player(const std::string& name, int bal) :
 
 Player::~Player()
 {
+	for (int i = 0; i < cards.size(); i++) {
+		delete cards[i];
+	}
 }
 
 void Player::CreateCards(CardsBuffer* card)
 {
 	cards.emplace_back(card);
-}
-
-void Player::RemoveCards()
-{
 }
 
 void Player::ResetAllCardStack()

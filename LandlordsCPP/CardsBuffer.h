@@ -24,6 +24,8 @@ public:
 	bool IsEmpty()const { return top == -1; }
 	bool IsFull()const { return top == maxSize - 1; }
 	virtual void MakeEmpty() { top = -1; }
+
+
 	//更新状态
 	virtual void ComputeAttributes() {};
 
@@ -46,17 +48,21 @@ public:
 	void SortNum(bool littleFirst = true);
 
 	//统计每个点数的张数
-	int* GetNums();
+	void GetNums(int* arr_nums);
 
 	void GetNumsAndTimes(int* arr_nums, int* arr_times, int& index_beg);
-
 
 
 	//Getter/Setter
 	int* GetBuf() { return buf; }
 	int GetSize()const { return top + 1; }
 	int GetMaxSize()const { return maxSize; }
+	void SetMax() { top = maxSize - 1; }
 
+	//INT型真实点数
+	std::string GetPrintSource();
+	//牌名
+	std::string GetPrintName();
 
 protected:
 	int* buf;
