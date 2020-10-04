@@ -4,28 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using LandlordsCS;
+
 namespace NetworkTCPClient
 {
     class Program
     {
         static void Main(string[] args)
         {
-            User user = new User();
-            string content = Console.ReadLine();
-            if (content.Length != 0)
+            Game game = new Game();
+            if (game.Initialize())
             {
-                user.name = content;
+                game.Loop();
             }
-            user.Connect();
-            while (true)
-            {
-                content = Console.ReadLine();
-                if (content.Length != 0)
-                {
-                    user.Send(content);
-                }
-
-            }
+            game.Shutdown();
         }
     }
 }

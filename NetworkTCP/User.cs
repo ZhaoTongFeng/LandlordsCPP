@@ -32,18 +32,83 @@ namespace NetworkTCP
             bw = new BinaryWriter(networkStream);
 
             //Task.Run(() => ReceiveFromClient());
-            Thread thread = new Thread(ReceiveFromClient);
+
+
+            //每一个Controller一个处理函数
+            //后面全部放到一个列表中
+           
+            //实际上并不用开多个线程
+            
+            Thread thread = new Thread(ReceiveFromClientToServer);
             thread.Start();
+
         }
 
         /// <summary>
         /// 处理
         /// 每一个Controller都有自己的处理方法
         /// </summary>
-        public void ReceiveFromClient()
+        public void ReceiveFromClientToServer()
         {
-            Server.ProcessReceive(ref br, this);
+            while (true)
+            {
+                string receiveString = null;
+                try
+                {
+                    receiveString = br.ReadString();
+                }
+                catch
+                {
+                    Server.DisConnected(this);
+                    return;
+                }
+                string[] split = receiveString.Split(',');
 
+
+                Room room;
+                int id;
+                switch (split[0])
+                {
+                    case "login":
+                        this.name = split[1];
+                        Server.SendToAllClient(this.name + "上线了," + "在线人数" + Server.users.Count);
+                        break;
+                    case "logout":
+                        Server.DisConnected(this);
+                        break;
+                    case "msg":
+                        Server.SendToAllClient(this.name + "：" + receiveString.Remove(0, 4));
+                        break;
+
+                    //房间
+                    case "create":
+                        room = new Room();
+                        room.Create(this);
+
+                        break;
+                    case "join":
+                        id = int.Parse(split[1]);
+                        room = Server.rooms[id];
+                        room.Join(this);
+
+                        break;
+                    case "exit":
+                        id = int.Parse(split[1]);
+                        room = Server.rooms[id];
+                        room.Exit(this);
+                        break;
+                    case "start":
+                        id = int.Parse(split[1]);
+                        room = Server.rooms[id];
+                        room.StartGame();
+                        break;
+
+
+                    default:
+                        Server.SendToAllClient("报头不匹配，无法解析");
+                        break;
+                }
+            }
         }
 
         //关闭

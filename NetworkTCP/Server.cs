@@ -9,17 +9,28 @@ using System.Threading.Tasks;
 
 namespace NetworkTCP
 {
+
+    
     class Server
     {
+
+        //房间列表
+        public static Dictionary<int, Room> rooms;
+        //所有用户列表
         public static List<User> users { get; set; }
+
+
         public static IPAddress localIP { get; set; }
         public static int port { get; set; }
 
         private static bool isRunning = true;
         private static bool isStopped = false;
 
+
+
         static Server()
         {
+            rooms = new Dictionary<int, Room>();
             users = new List<User>();
             port = 51888;
             //找一个ipv4的地址
@@ -32,12 +43,6 @@ namespace NetworkTCP
                     break;
                 }
             }
-        }
-        public static void ReStart()
-        {
-            isRunning = true;
-            isStopped = false;
-            Start();
         }
 
         //启动
@@ -67,28 +72,17 @@ namespace NetworkTCP
                     }
                 }
             }
+            Console.WriteLine("监听结束");
         }
-        public static void Stop()
-        {
-            isStopped = true;
-        }
-        public static void Continue()
-        {
-            isStopped = false;
-        }
-
-        public static void Shutdown()
-        {
-            isRunning = false;
-        }
-
 
 
         //断开连接之后的处理，移除用户
-        public static void RemoveUser(User user)
+        public static void DisConnected(User user)
         {
+            SendToAllClient(user.name + "下线了");
             users.Remove(user);
         }
+
 
         public static void SendToAllClient(string meg)
         {
@@ -102,49 +96,30 @@ namespace NetworkTCP
                 catch 
                 {
 
-                    RemoveUser(users[i]);
+                    DisConnected(users[i]);
                 }
             }
         }
 
-        /// <summary>
-        /// User可以换成Object
-        /// </summary>
-        /// <param name="br"></param>
-        /// <param name="user"></param>
-        public static void ProcessReceive(ref BinaryReader br,User user)
+
+        public static void ReStart()
         {
-            while (true)
-            {
-                string receiveString = null;
-                try
-                {
-                    receiveString = br.ReadString();
-                }
-                catch
-                {
-                    Server.RemoveUser(user);
-                    return;
-                }
-                string[] split = receiveString.Split(',');
-                switch (split[0])
-                {
-                    case "login":
-                        user.name = split[1];
-                        Server.SendToAllClient(user.name + "进入了房间," + "在线人数" + Server.users.Count);
-                        break;
-                    case "logout":
-                        Server.SendToAllClient(user.name + "退出了房间。");
-                        Server.RemoveUser(user);
-                        break;
-                    case "msg":
-                        Server.SendToAllClient(user.name + "：" + receiveString.Remove(0, 3));
-                        break;
-                    default:
-                        Server.SendToAllClient("报头不匹配，无法解析");
-                        break;
-                }
-            }
+            isRunning = true;
+            isStopped = false;
+            Start();
+        }
+        public static void Stop()
+        {
+            isStopped = true;
+        }
+        public static void Continue()
+        {
+            isStopped = false;
+        }
+
+        public static void Shutdown()
+        {
+            isRunning = false;
         }
     }
 }

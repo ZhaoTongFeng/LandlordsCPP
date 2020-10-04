@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NetworkTCP
@@ -10,6 +11,15 @@ namespace NetworkTCP
     class Program
     {
         static void Main(string[] args)
+        {
+            Server.Start();
+            Console.ReadKey();
+
+            //Thread thread = new Thread(CommandControl);
+            //thread.Start();
+        }
+
+        public static void CommandControl()
         {
             while (true)
             {
@@ -29,7 +39,6 @@ namespace NetworkTCP
                         break;
                 }
             }
-            
         }
 
     }
