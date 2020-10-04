@@ -11,31 +11,26 @@ namespace NetworkTCP
     {
         static void Main(string[] args)
         {
-
-            Program.Init();
-            Console.ReadKey();
-        }
-
-        public async static void Init()
-        {
-            TcpListener listener = new TcpListener(Server.localIP, Server.port);
-            listener.Start();
-            string msg = string.Format("IP:{0},Port:{1}监听中", Server.localIP, Server.port);
-            Console.WriteLine(msg);
             while (true)
             {
-                try
+                string cmd = Console.ReadLine();
+                switch (cmd)
                 {
-                    TcpClient client = await listener.AcceptTcpClientAsync();
-                    User user = new User(client);
-                    Server.users.Add(user);
+                    case "start":
+                        Server.Start();
+                        break;
+                    case "stop":
+                        Server.Stop();
+                        break;
+                    case "shutdown":
+                        Server.Shutdown();
+                        break;
+                    default:
+                        break;
                 }
-                catch
-                {
-                    break;
-                }
-
             }
+            
         }
+
     }
 }

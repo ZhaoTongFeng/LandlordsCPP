@@ -9,65 +9,49 @@ using System.Threading.Tasks;
 
 namespace NetworkTCP
 {
-    class User
+    public class User
     {
-        public BinaryReader br { get; private set; }
+        public BinaryReader br;
 
-        public BinaryWriter bw { get; private set; }
+        public BinaryWriter bw;
 
-        private string name;
+        public string name;
 
         private TcpClient client;
 
+        /// <summary>
+        /// 连接
+        /// </summary>
+        /// <param name="client"></param>
+        //连接之后开启一个线程和客户端进行连接，不停处理来自客户端的数据
         public User(TcpClient client)
         {
             this.client = client;
             NetworkStream networkStream = client.GetStream();
             br = new BinaryReader(networkStream);
             bw = new BinaryWriter(networkStream);
+
             //Task.Run(() => ReceiveFromClient());
             Thread thread = new Thread(ReceiveFromClient);
             thread.Start();
         }
+
+        /// <summary>
+        /// 处理
+        /// 每一个Controller都有自己的处理方法
+        /// </summary>
+        public void ReceiveFromClient()
+        {
+            Server.ProcessReceive(ref br, this);
+
+        }
+
+        //关闭
         public void Close()
         {
             br.Close();
             bw.Close();
             client.Close();
-        }
-        public void ReceiveFromClient()
-        {
-            while (true)
-            {
-                string receiveString = null;
-                try
-                {
-                    receiveString = br.ReadString();
-                }
-                catch 
-                {
-                    Server.RemoveUser(this);
-                    return;
-                }
-                string[] split = receiveString.Split(',');
-                switch (split[0])
-                {
-                    case "login":
-                        name = split[1];
-                        Server.SendToAllClient(name + "进入了房间," + "在线人数" + Server.users.Count);
-                        break;
-                    case "logout":
-                        Server.SendToAllClient(name + "退出了房间。");
-                        Server.RemoveUser(this);
-                        break;
-                    case "msg":
-                        Server.SendToAllClient(name + "：" + receiveString.Remove(0,3));
-                        break;
-                    default:
-                        Server.SendToAllClient("报头不匹配，无法解析");
-                        break;
-                }
-            }
         }
     }
 }
