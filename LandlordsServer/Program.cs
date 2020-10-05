@@ -27,7 +27,7 @@ namespace NetworkTCP
                 Console.WriteLine("************** Log **************");
                 Console.WriteLine(Program.ScreenString);
             }
-            
+
             //Thread thread = new Thread(CommandControl);
             //thread.Start();
         }

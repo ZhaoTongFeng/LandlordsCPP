@@ -1,9 +1,12 @@
-﻿using System;
+﻿using LandlordsClient;
+using NetworkTCP;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting.Lifetime;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace LandlordsCS
@@ -141,9 +144,14 @@ namespace LandlordsCS
             }
         }
 
+        public void ProcessNetworkPackage(Package pg)
+        {
+
+        }
+
         //先检测此回合是否为本地玩家进行操作，如果是则将按键对应的指令发送给服务器
         //指令同步，对于指令类游戏，不需要在本地运行任何游戏性操作，只需要相关的游戏状态，比如游戏是否结束，手牌和数量，赢家和输家
-        
+
         public void ProcessInput()
         {
             inputPoint = -1;

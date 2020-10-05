@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using LandlordsCS;
+using NetworkTCP;
 
 namespace NetworkTCPClient
 {
@@ -19,7 +20,12 @@ namespace NetworkTCPClient
         Connecting,//连接中
         DisConnected//连接失败
     }
-
+    public enum PlayerState
+    {
+        Online,
+        InRoom,
+        Playing
+    }
     public class User
     {
         public TcpClient client { get; set; }
@@ -29,11 +35,33 @@ namespace NetworkTCPClient
 
         public int remotePort = 51888;
 
-        //构造函数
+        public string name = "";
+        public Room room;
+
         public User()
         {
             remoteHost = Dns.GetHostName();
         }
+
+
+        //玩家在线状态
+        public PlayerState state = PlayerState.Online;
+        public string GetStateName()
+        {
+            switch (state)
+            {
+                case PlayerState.Online:
+                    return "在线";
+                case PlayerState.InRoom:
+                    return "等待中";
+                case PlayerState.Playing:
+                    return "游戏中";
+                default:
+                    return "";
+            }
+        }
+
+
 
 
         //网络状态
@@ -43,9 +71,6 @@ namespace NetworkTCPClient
         {
             return mNetState == NetState.Connected;
         }
-
-        public string name = "";
-
 
         public string GetNetStateName()
         {
@@ -97,13 +122,9 @@ namespace NetworkTCPClient
             return true;
         }
 
-
         //接收线程
-
         //对服务器的指令进行解析，应该使用消息队列的模式，将接收到的消息经过一定解析存放到一个队列，这个队列将明确指出应该做何种处理，在主线程中每帧去处理这个队列，而不是在这个线程中直接对主线程进行操作
-
         //按道理说是可以用回调的方法去调用，但是如果有很多个GameMode，不可能全部放到这里进行处理，还不如全部放到队列中，让Gamemode自己去检测，
-
         //不要在主线程之外将消息打印到屏幕
         //Game.Print(receiveString);
         private void ReceiveData()

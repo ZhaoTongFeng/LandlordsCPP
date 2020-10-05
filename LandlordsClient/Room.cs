@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-
+using LandlordsClient;
+using LandlordsCS;
+using NetworkTCPClient;
 
 namespace NetworkTCP
 {
@@ -48,7 +51,6 @@ namespace NetworkTCP
             }
         }
 
-
         public static Dictionary<String, String> msgs = new Dictionary<string, string>()
         {
             {"create","msg,\"{0}\"创建了房间，ID:{1}" },
@@ -64,66 +66,79 @@ namespace NetworkTCP
             users = new List<User>();
         }
 
+        public static void ProcessNetworkPackage(Package pg)
+        {
+            //不会吧MSG传送到这里，所以到这里的全都是OPT
+            if (pg.funName.Equals("onCreateRoom"))
+            {
+                //反序列化，创建房间实例之后，这个room应该是在user类中保存的
+                Game.locUser.room = JsonSerializer.Deserialize<Room>(pg.data);
+            }
+        }
+
         /// <summary>
         /// 给房间中的所有玩家发送消息
         /// </summary>
         /// <param name="msg"></param>
         public void SendToAllClient(string msg)
         {
-            for (int i = 0; i < users.Count; i++)
-            {
-                users[i].Send(msg);
-            }
+            string data= "msg,room,"+msg;
+            Game.SendString(data);
         }
 
         /// <summary>
         /// 创建房间
         /// </summary>
         /// <param name="user"></param>
-        public void Create(User user) {
-            id = count++;
-            this.user = user;
-            name = user.name+"的房间";
-            
-            Server.rooms.Add(id, this);
-
-            this.users.Add(user);
-
-            //通知
-            Server.SendToAllClient(String.Format(msgs["create"], user.name, id));
-            //数据
-            
-            //user.Send(String.Format("onCreated,{0}", ));
+        public static void Create() {
+            string data = "create";
+            Game.SendString(data);
         }
+
+        public void onCreated()
+        {
+
+        }
+
+
 
         /// <summary>
         /// 加入房间
         /// </summary>
         /// <param name="user"></param>
-        public void Join(User user)
+        public static void Join(int i)
         {
-            users.Add(user);
-            Server.SendToAllClient(String.Format(msgs["join"], user.name));
+            string data = "join," + i;
+            Game.SendString(data);
         }
 
+        public void onJoin()
+        {
 
+        }
 
         /// <summary>
         /// 开始游戏
         /// </summary>
         public void StartGame()
         {
-            Server.SendToAllClient(String.Format(msgs["start"]));
+            string data = "start";
+            Game.SendString(data);
+        }
+
+        public void onStartGame()
+        {
+
         }
 
         /// <summary>
         /// 离开房间
         /// </summary>
         /// <param name="user"></param>
-        public void Exit(User user)
+        public void Exit()
         {
-            users.Remove(user);
-            Server.SendToAllClient(String.Format(msgs["exit"], user.name));
+            string data = "exit";
+            Game.SendString(data);
         }
 
         /// <summary>
@@ -131,10 +146,8 @@ namespace NetworkTCP
         /// </summary>
         public void Shutdown()
         {
-            count--;
-            Server.SendToAllClient(String.Format(msgs["shutdown"]));
+            string data = "shutdown";
+            Game.SendString(data);
         }
-
-
     }
 }

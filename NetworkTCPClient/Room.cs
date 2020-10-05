@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
+using LandlordsCS;
+using NetworkTCPClient;
 
 namespace NetworkTCP
 {
@@ -48,7 +50,6 @@ namespace NetworkTCP
             }
         }
 
-
         public static Dictionary<String, String> msgs = new Dictionary<string, string>()
         {
             {"create","msg,\"{0}\"创建了房间，ID:{1}" },
@@ -70,60 +71,61 @@ namespace NetworkTCP
         /// <param name="msg"></param>
         public void SendToAllClient(string msg)
         {
-            for (int i = 0; i < users.Count; i++)
-            {
-                users[i].Send(msg);
-            }
+            string data= "msg,room,"+msg;
+            Game.SendString(data);
         }
 
         /// <summary>
         /// 创建房间
         /// </summary>
         /// <param name="user"></param>
-        public void Create(User user) {
-            id = count++;
-            this.user = user;
-            name = user.name+"的房间";
-            
-            Server.rooms.Add(id, this);
+        public static void Create() {
+            string data = "create";
+            Game.SendString(data);
+        }
 
-            this.users.Add(user);
+        public void onCreated()
+        {
 
-            //通知
-            Server.SendToAllClient(String.Format(msgs["create"], user.name, id));
-            //数据
-            
-            //user.Send(String.Format("onCreated,{0}", ));
         }
 
         /// <summary>
         /// 加入房间
         /// </summary>
         /// <param name="user"></param>
-        public void Join(User user)
+        public static void Join(int i)
         {
-            users.Add(user);
-            Server.SendToAllClient(String.Format(msgs["join"], user.name));
+            string data = "join," + i;
+            Game.SendString(data);
         }
 
+        public void onJoin()
+        {
 
+        }
 
         /// <summary>
         /// 开始游戏
         /// </summary>
         public void StartGame()
         {
-            Server.SendToAllClient(String.Format(msgs["start"]));
+            string data = "start";
+            Game.SendString(data);
+        }
+
+        public void onStartGame()
+        {
+
         }
 
         /// <summary>
         /// 离开房间
         /// </summary>
         /// <param name="user"></param>
-        public void Exit(User user)
+        public void Exit()
         {
-            users.Remove(user);
-            Server.SendToAllClient(String.Format(msgs["exit"], user.name));
+            string data = "exit";
+            Game.SendString(data);
         }
 
         /// <summary>
@@ -131,10 +133,8 @@ namespace NetworkTCP
         /// </summary>
         public void Shutdown()
         {
-            count--;
-            Server.SendToAllClient(String.Format(msgs["shutdown"]));
+            string data = "shutdown";
+            Game.SendString(data);
         }
-
-
     }
 }

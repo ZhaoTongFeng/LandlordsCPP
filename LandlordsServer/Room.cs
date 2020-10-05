@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-
 
 namespace NetworkTCP
 {
@@ -81,19 +81,18 @@ namespace NetworkTCP
         /// </summary>
         /// <param name="user"></param>
         public void Create(User user) {
+            //处理
             id = count++;
             this.user = user;
             name = user.name+"的房间";
-            
             Server.rooms.Add(id, this);
+            users.Add(user);
 
-            this.users.Add(user);
-
-            //通知
+            //通知，这个通知能不能让用户进行调用还是一个问题。如果把这个通知看成一个IM系统的一部分，那么用户肯定是能够调用的。
             Server.SendToAllClient(String.Format(msgs["create"], user.name, id));
-            //数据
-            
-            //user.Send(String.Format("onCreated,{0}", ));
+
+            //数据：把这个类序列化发送给客户端
+            user.Send("onCreated"+ JsonSerializer.Serialize(this));
         }
 
         /// <summary>

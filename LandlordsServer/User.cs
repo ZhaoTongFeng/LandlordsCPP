@@ -13,6 +13,7 @@ namespace NetworkTCP
     public enum PlayerState
     {
         Online,
+        InRoom,
         Playing
     }
 
@@ -32,6 +33,8 @@ namespace NetworkTCP
             {
                 case PlayerState.Online:
                     return "在线";
+                case PlayerState.InRoom:
+                    return "等待中";
                 case PlayerState.Playing:
                     return "游戏中";
                 default:

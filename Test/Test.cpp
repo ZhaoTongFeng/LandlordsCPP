@@ -57,11 +57,26 @@ void PrintName(int* arr, const int& count) {
 
 int main()
 {
-    //sizeof只能测量int bbb[]这种类型的数组长度，无法测量int* arr这种动态分配的数组长度
-    int bbb[10];
-    cout << sizeof(bbb);
 
-    const int maxSize = 54;
+    int arr[] = { 12,3,5,7,10,6,1,11,0 };
+
+    int mx = 0, tmp = 0;
+    for (int i = 1; i < sizeof(arr)/sizeof(int); i++) {
+        if (arr[i] > arr[i-1]) {
+            mx = max(tmp + abs(arr[i] - arr[i - 1]), mx);
+        }
+        else {
+            tmp = 0;
+        }
+    }
+    cout << mx;
+
+
+    //sizeof只能测量int bbb[]这种类型的数组长度，无法测量int* arr这种动态分配的数组长度
+    //int bbb[10];
+    //cout << sizeof(bbb);
+
+    //const int maxSize = 54;
 
     //CardsBuffer* all = new CardsBuffer(maxSize);
 
@@ -90,11 +105,11 @@ int main()
 
 
 
-    int* arr = new int[maxSize];
-    
-    for (int i = 0; i < maxSize; i++) {
-        arr[i] = i + 1;
-    }
+    //int* arr = new int[maxSize];
+    //
+    //for (int i = 0; i < maxSize; i++) {
+    //    arr[i] = i + 1;
+    //}
 
 
     //Shuffle(arr, maxSize);
