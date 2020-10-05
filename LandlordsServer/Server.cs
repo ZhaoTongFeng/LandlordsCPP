@@ -14,8 +14,8 @@ namespace NetworkTCP
     public class Server
     {
 
-        //房间列表
-        public static Dictionary<int, Room> rooms;
+
+
         //所有用户列表
         public static List<User> users { get; set; }
 
@@ -44,20 +44,19 @@ namespace NetworkTCP
             }
 
             str += "**********************************\n";
-            str += String.Format("房间数:{0}\n", rooms.Count);
+            str += String.Format("房间数:{0}\n", Room.rooms.Count);
             str += "************ 房间列表 ************\n";
             string str_room = "{0}\t{1}\t{2}\t{3}\n";
             str += String.Format(str_room, "ID", "Name", "State", "Num");
-            for(int i = 0; i < rooms.Count; i++)
+            for(int i = 0; i < Room.rooms.Count; i++)
             {
-                str += String.Format(str_room, rooms[i].id, rooms[i].name, rooms[i].GetStateName(), rooms[i].users.Count+"/3");
+                str += String.Format(str_room, Room.rooms[i].id, Room.rooms[i].name, Room.rooms[i].GetStateName(), Room.rooms[i].users.Count+"/3");
             }
             return str;
         }
         
         static Server()
         {
-            rooms = new Dictionary<int, Room>();
             users = new List<User>();
             port = 51888;
             //找一个ipv4的地址
@@ -71,6 +70,7 @@ namespace NetworkTCP
                 }
             }
         }
+
 
         //启动
         public async static void Start()
@@ -99,19 +99,9 @@ namespace NetworkTCP
                         break;
                     }
                 }
-
             }
             Console.WriteLine("监听结束");
         }
-
-
-        //断开连接之后的处理，移除用户
-        public static void DisConnected(User user)
-        {
-            SendToAllClient(user.name + "下线了");
-            users.Remove(user);
-        }
-
 
         public static void SendToAllClient(string msg)
         {

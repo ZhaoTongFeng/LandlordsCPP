@@ -1,9 +1,11 @@
-﻿using System;
+﻿using LandlordsServer;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,24 +18,126 @@ namespace NetworkTCP
     }
 
     /// <summary>
-    /// 房间
+    /// 游戏房间
     /// </summary>
     public class Room
     {
-        
+        //房间列表
+        public static Dictionary<int, Room> rooms = new Dictionary<int, Room>();
+
         //房间总数
         public static int count = 0;
         
         //房号
-        public int id;
+        public int id { get; set; }
+        
         //房名
-        public string name = "";
+        public string name { get; set; }
+        
         //房主
         public User user;
+
         //玩家列表
         public List<User> users;
+
         //房间状态
-        public RoomState state = RoomState.Prepare;
+        public RoomState state { get; set; }
+
+        //预制消息模板
+        public static Dictionary<String, String> msgs = new Dictionary<string, string>()
+        {
+            {"create","msg,\"{0}\"创建了房间，ID:{1}" },
+            {"join","\"msg,{0}\"加入了房间" },
+            {"exit","\"msg,{0}\"退出了房间" },
+            {"start","msg,开始游戏" },
+            {"shutdown","msg,房间已销毁" }
+        };
+
+
+        //没有公开的构造函数，用反序列化直接构建
+
+        private Room(User user)
+        {
+            state = RoomState.Prepare;
+            this.user = user;
+            users = new List<User>();
+            users.Add(user);
+            id = count++;
+            name = user.name + "的房间";
+            rooms.Add(id, this);
+            user.room = this;
+            
+            
+        }
+
+        /// <summary>
+        /// 创建房间
+        /// </summary>
+        /// <param name="user"></param>
+        public static Room Create(User user) {
+            Room room = new Room(user);
+            MessageSender.SendToAllUsers(user, String.Format(msgs["create"], user.name, id));
+            //数据：把这个类序列化发送给客户端
+            user.Send("onCreated"+ JsonSerializer.Serialize(this));
+            return room;
+        }
+
+        /// <summary>
+        /// 加入房间
+        /// </summary>
+        /// <param name="user"></param>
+        public static bool Join(User user, JsonElement root)
+        {
+            int id = root.GetProperty("id").GetInt32();
+
+            //这里还没有处理房间已经消失的情况
+            Room room;
+            try
+            {
+                Room.rooms.TryGetValue(id, out room);
+            }
+            catch 
+            {
+
+                return false;
+            }
+            room.users.Add(user);
+            user.room = room;
+
+            MessageSender.SendToRoomUsers(user, String.Format(msgs["join"], user.name));
+            return true;
+        }
+
+
+
+        /// <summary>
+        /// 开始游戏
+        /// </summary>
+        public void StartGame()
+        {
+            MessageSender.SendToRoomUsers(user,String.Format(msgs["start"]));
+        }
+
+        /// <summary>
+        /// 离开房间
+        /// </summary>
+        /// <param name="user"></param>
+        public void Exit()
+        {
+            rooms.Remove(user.room.id);
+            user.room = null;
+            users.Remove(user);
+            MessageSender.SendToRoomUsers(user, String.Format(msgs["exit"], user.name));
+        }
+
+        /// <summary>
+        /// 销毁房间
+        /// </summary>
+        public void Shutdown()
+        {
+            count--;
+            MessageSender.SendToRoomUsers(user,String.Format(msgs["shutdown"]));
+        }
 
         public string GetStateName()
         {
@@ -49,21 +153,6 @@ namespace NetworkTCP
         }
 
 
-        public static Dictionary<String, String> msgs = new Dictionary<string, string>()
-        {
-            {"create","msg,\"{0}\"创建了房间，ID:{1}" },
-            {"join","\"msg,{0}\"加入了房间" },
-            {"exit","\"msg,{0}\"退出了房间" },
-            {"start","msg,开始游戏" },
-            {"shutdown","msg,房间已销毁" }
-        };
-
-
-        public Room()
-        {
-            users = new List<User>();
-        }
-
         /// <summary>
         /// 给房间中的所有玩家发送消息
         /// </summary>
@@ -75,65 +164,5 @@ namespace NetworkTCP
                 users[i].Send(msg);
             }
         }
-
-        /// <summary>
-        /// 创建房间
-        /// </summary>
-        /// <param name="user"></param>
-        public void Create(User user) {
-            //处理
-            id = count++;
-            this.user = user;
-            name = user.name+"的房间";
-            Server.rooms.Add(id, this);
-            users.Add(user);
-
-            //通知，这个通知能不能让用户进行调用还是一个问题。如果把这个通知看成一个IM系统的一部分，那么用户肯定是能够调用的。
-            Server.SendToAllClient(String.Format(msgs["create"], user.name, id));
-
-            //数据：把这个类序列化发送给客户端
-            user.Send("onCreated"+ JsonSerializer.Serialize(this));
-        }
-
-        /// <summary>
-        /// 加入房间
-        /// </summary>
-        /// <param name="user"></param>
-        public void Join(User user)
-        {
-            users.Add(user);
-            Server.SendToAllClient(String.Format(msgs["join"], user.name));
-        }
-
-
-
-        /// <summary>
-        /// 开始游戏
-        /// </summary>
-        public void StartGame()
-        {
-            Server.SendToAllClient(String.Format(msgs["start"]));
-        }
-
-        /// <summary>
-        /// 离开房间
-        /// </summary>
-        /// <param name="user"></param>
-        public void Exit(User user)
-        {
-            users.Remove(user);
-            Server.SendToAllClient(String.Format(msgs["exit"], user.name));
-        }
-
-        /// <summary>
-        /// 销毁房间
-        /// </summary>
-        public void Shutdown()
-        {
-            count--;
-            Server.SendToAllClient(String.Format(msgs["shutdown"]));
-        }
-
-
     }
 }
