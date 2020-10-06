@@ -5,8 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetworkWPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+        Title="MainWindow" SizeToContent="Height" Width="400">
+
+    <StackPanel >
+        <Button x:Name="btnOpenClient" Content="启动客户端" Click="btnOpenClient_Click" />
+        <Button x:Name="btnOpenServer" Content="启动服务端" Click="btnOpenServer_Click"/>
+        <Button x:Name="btnOpenBoth" Content="启动客户端和服务端" Click="btnOpenBoth_Click"/>
+        <Border Height="20"/>
+        <Button x:Name="btnCloseClient" Content="关闭客户端" Click="btnCloseClient_Click"/>
+        <Button x:Name="btnCloseServer" Content="关闭服务端" Click="btnCloseServer_Click"/>
+        <Button x:Name="btnCloseBoth" Content="关闭所有" Click="btnCloseBoth_Click"/>
+    </StackPanel>
 </Window>

@@ -109,7 +109,7 @@ namespace NetworkTCP
             {
                 if (!users[i].Send(msg))
                 {
-                    DisConnected(users[i]);
+                    //DisConnected(users[i]);
                 }
             }
             lock (Program.ScreenString)
