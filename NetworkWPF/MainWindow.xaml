@@ -5,15 +5,26 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NetworkWPF"
         mc:Ignorable="d"
-        Title="MainWindow" SizeToContent="Height" Width="400">
+        Title="MainWindow" SizeToContent="Height" Width="200">
 
-    <StackPanel >
-        <Button x:Name="btnOpenClient" Content="启动客户端" Click="btnOpenClient_Click" />
-        <Button x:Name="btnOpenServer" Content="启动服务端" Click="btnOpenServer_Click"/>
-        <Button x:Name="btnOpenBoth" Content="启动客户端和服务端" Click="btnOpenBoth_Click"/>
-        <Border Height="20"/>
-        <Button x:Name="btnCloseClient" Content="关闭客户端" Click="btnCloseClient_Click"/>
-        <Button x:Name="btnCloseServer" Content="关闭服务端" Click="btnCloseServer_Click"/>
-        <Button x:Name="btnCloseBoth" Content="关闭所有" Click="btnCloseBoth_Click"/>
-    </StackPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"></RowDefinition>
+            <RowDefinition Height="50"></RowDefinition>
+            <RowDefinition Height="50"></RowDefinition>
+            <RowDefinition Height="50"></RowDefinition>
+            <RowDefinition Height="50"></RowDefinition>
+            <RowDefinition Height="50"></RowDefinition>
+            <RowDefinition Height="50"></RowDefinition>
+        </Grid.RowDefinitions>
+        
+        <Button x:Name="btnOpenClient" Content="启动客户端" Click="btnOpenClient_Click" Grid.Row="0"/>
+        <Button x:Name="btnOpenServer" Content="启动服务端" Click="btnOpenServer_Click" Grid.Row="1"/>
+        <Button x:Name="btnOpenBoth" Content="启动客户端和服务端" Click="btnOpenBoth_Click" Grid.Row="2"/>
+        <Label Content="---" Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        <Button x:Name="btnCloseClient" Content="关闭客户端" Click="btnCloseClient_Click" Grid.Row="4"/>
+        <Button x:Name="btnCloseServer" Content="关闭服务端" Click="btnCloseServer_Click" Grid.Row="5"/>
+        <Button x:Name="btnCloseBoth" Content="关闭所有" Click="btnCloseBoth_Click" Grid.Row="6"/>
+    </Grid>
+
 </Window>

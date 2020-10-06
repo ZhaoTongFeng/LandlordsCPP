@@ -31,12 +31,17 @@ namespace NetworkTCPClient
         public TcpClient client { get; set; }
         public BinaryReader br { get; set; }
         public BinaryWriter bw { get; set; }
+
+        public string name = "";
+        public Room room;
+
+
+
         public string remoteHost { get; set; }
 
         public int remotePort = 51888;
 
-        public string name = "";
-        public Room room;
+
 
         public User()
         {

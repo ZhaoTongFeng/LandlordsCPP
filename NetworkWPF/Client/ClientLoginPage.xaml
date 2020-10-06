@@ -7,9 +7,33 @@
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="ClientLoginPage">
-
     <Grid>
-        <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="116,185,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top"/>
+        <Border HorizontalAlignment="Center" VerticalAlignment="Center" BorderBrush="Black" BorderThickness="2,2,2,2" Padding="10">
+            <Grid  >
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
 
+                <Label Content="登录" Grid.ColumnSpan="2" HorizontalAlignment="Center"></Label>
+                <Label Content="账号：" Grid.Row="1" Grid.Column="0"></Label>
+                <Label Content="密码：" Grid.Row="2" Grid.Column="0"></Label>
+
+                <TextBox x:Name="textUserName" Grid.Row="1" Grid.Column="1" Width="200" ></TextBox>
+                <TextBox x:Name="textPassword" Grid.Row="2" Grid.Column="1" Width="200" ></TextBox>
+
+                <Button x:Name="btnOK" Content="确定" Grid.ColumnSpan="2" Grid.Row="3" Margin="0,20" Click="btnOK_Click"></Button>
+                <Label x:Name="labelErr" Content="错误信息" Grid.ColumnSpan="2" Grid.Row="4" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+ 
     </Grid>
+
 </Page>

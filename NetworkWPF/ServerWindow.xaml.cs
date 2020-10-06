@@ -22,6 +22,18 @@ namespace NetworkWPF
         public ServerWindow()
         {
             InitializeComponent();
+            Closing += ServerWindow_Closing;
+
+            labelIP.Content = Server.localIP;
+            labelPort.Content = Server.port;
+
+            Server.Start(textBlockLog, labelRoomCount, labelUserCount);
         }
+
+        private void ServerWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            Server.Stop();
+        }
+        
     }
 }

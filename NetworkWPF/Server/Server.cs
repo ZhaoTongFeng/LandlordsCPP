@@ -4,10 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 
-namespace NetworkTCP
+namespace NetworkWPF
 {
 
     
@@ -55,7 +57,6 @@ namespace NetworkTCP
             return str;
         }
         
-
         static Server()
         {
             users = new List<User>();
@@ -72,19 +73,33 @@ namespace NetworkTCP
             }
         }
 
-
-        //启动
-        public async static void Start()
+        public static TcpListener listener;
+        public static TextBlock logTextBlock;
+        public static void Log(string msg)
         {
-            isRunning = true;
-            //开启监听
-            TcpListener listener = new TcpListener(Server.localIP, Server.port);
-            listener.Start();
-            
-            string msg = string.Format("IP:{0},Port:{1}监听中", Server.localIP, Server.port);
-            //Console.WriteLine(msg);
-            Program.ScreenString += msg + "\n";
+            logTextBlock.Dispatcher.InvokeAsync(() =>
+            {
+                logTextBlock.Text += string.Format("{0}:{1}\n", DateTime.Now.ToString("hh:mm:ss"), msg);
+            });
+        }
 
+
+        public static Label mLabRoomCount;
+        public static Label mLabUserCount;
+        //启动
+        public async static void Start(TextBlock textBlock,Label labRoomCount,Label labUserCount)
+        {
+            logTextBlock = textBlock;
+            mLabRoomCount = labRoomCount;
+            mLabUserCount = labUserCount;
+
+            //开启监听
+            listener = new TcpListener(Server.localIP, Server.port);
+            listener.Start();
+
+            Log("服务器已启动");
+
+            isRunning = true;
             while (isRunning)
             {
                 if (!isStopped)
@@ -101,10 +116,19 @@ namespace NetworkTCP
                     }
                 }
             }
-            Console.WriteLine("监听结束");
+            Log("服务器已关闭");
+        }
+        public static void Stop()
+        {
+            isStopped = true;
+            if (listener != null)
+            {
+                listener.Stop();
+            }
+            Log("服务器已关闭");
         }
 
-        public static void SendToAllClient(string msg)
+        public static void SendToAllClient(string msg,User user = null)
         {
             for(int i = 0; i < users.Count; i++)
             {
@@ -113,32 +137,19 @@ namespace NetworkTCP
                     //DisConnected(users[i]);
                 }
             }
-            lock (Program.ScreenString)
+            if (user != null)
             {
-                Program.ScreenString += msg + "\n";
+                Log(user.name + "：" + msg);
+            }
+            else
+            {
+                Log("系统：" + msg);
             }
             
         }
 
 
-        public static void ReStart()
-        {
-            isRunning = true;
-            isStopped = false;
-            Start();
-        }
-        public static void Stop()
-        {
-            isStopped = true;
-        }
-        public static void Continue()
-        {
-            isStopped = false;
-        }
 
-        public static void Shutdown()
-        {
-            isRunning = false;
-        }
+
     }
 }

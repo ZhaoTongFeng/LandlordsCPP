@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,17 +34,21 @@ namespace NetworkWPF
 
         public void OpenClients()
         {
+
+            int count = 0;
             for (int i = 0; i < 2; i++)
             {
                 for (int j = 0; j < 2; j++)
                 {
                     ClientWindow w1 = new ClientWindow();
+                    w1.SetUser(count);
                     w1.Title = "客户端" + i + "-" + j;
                     w1.Left = Width + (i % 2) * w1.Width;
                     w1.Top = (j % 2) * w1.Height;
                     w1.Owner = this;
                     w1.Show();
                     clientWindows.Add(w1);
+                    count++;
                 }
             }
         }

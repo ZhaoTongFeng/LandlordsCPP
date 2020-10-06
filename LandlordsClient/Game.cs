@@ -164,6 +164,7 @@ namespace LandlordsCS
         //发送线程会不停的检测是否需要发送，一旦有需要发送的信息，就立即按照顺序进行发送，而不管是从那个模块发送的信息，所以是一个严格的队列模型
         public static volatile Queue<String> outMsgQue = new Queue<string>();
 
+
         /// <summary>
         /// 发消息给服务器
         /// 实际上是将字符串添加到消息队列，由消息线程将消息进行发送。

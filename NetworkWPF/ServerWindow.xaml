@@ -7,6 +7,46 @@
         mc:Ignorable="d"
         Title="ServerWindow" Height="450" Width="800">
     <Grid>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" Margin="10" BorderBrush="Black" BorderThickness="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <StackPanel  Grid.Row="0">
+                    <Label Content="服务器状态" HorizontalAlignment="Center"></Label>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="IP:"></Label>
+                        <Label x:Name="labelIP" Content="192.168.3.1"></Label>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Port:"></Label>
+                        <Label x:Name="labelPort" Content="65532"></Label>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="在线人数"></Label>
+                        <Label x:Name="labelUserCount" Content="3"></Label>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="房间数量"></Label>
+                        <Label x:Name="labelRoomCount" Content="3"></Label>
+                    </StackPanel>
+                </StackPanel>
+
+            </Grid>
+        </Border>
+
         
+        <Border Grid.Column="1" Margin="10" BorderBrush="Black" BorderThickness="1">
+            <ScrollViewer>
+                <TextBlock Name="textBlockLog"/>
+            </ScrollViewer>
+        </Border>
     </Grid>
 </Window>

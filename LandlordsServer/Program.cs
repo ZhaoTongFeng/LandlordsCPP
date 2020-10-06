@@ -15,6 +15,8 @@ namespace NetworkTCP
         static void Main(string[] args)
         {
             Server.Start();
+
+
             Stopwatch sw = new Stopwatch();
             sw.Start();
             long mil = 0;
