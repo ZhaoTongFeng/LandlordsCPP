@@ -1,0 +1,36 @@
+﻿<UserControl x:Class="NetworkWPF.Client.RoomWidget"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NetworkWPF.Client"
+             mc:Ignorable="d" 
+             Height="100"
+             Width="100"
+             d:DesignHeight="400" d:DesignWidth="400">
+
+    <Border>
+        <Grid>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"></ColumnDefinition>
+                <ColumnDefinition Width="1*"></ColumnDefinition>
+                <ColumnDefinition Width="1*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*"></RowDefinition>
+                <RowDefinition></RowDefinition>
+                <RowDefinition Height="1*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Label x:Name="labelRoomId" Visibility="Hidden"></Label>
+            <Label x:Name="labelRoomName" Content="1号" Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" ></Label>
+
+            <Button x:Name="buttonJoin" Content="加入房间" Grid.Row="1" Grid.ColumnSpan="3" Margin="8"></Button>
+
+            <Border x:Name="border_0" Background="Black" Grid.Row="2" Grid.Column="0" Margin="8"></Border>
+            <Border x:Name="border_1" Background="Black" Grid.Row="2" Grid.Column="1" Margin="8"></Border>
+            <Border x:Name="border_2" Background="Black" Grid.Row="2" Grid.Column="2" Margin="8"></Border>
+        </Grid>
+    </Border>
+
+</UserControl>

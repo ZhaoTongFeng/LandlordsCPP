@@ -1,0 +1,45 @@
+﻿<Page x:Class="NetworkWPF.Client.ClientRoomListPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:NetworkWPF.Client"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="450"
+      Title="ClientRoomListPage">
+
+    <Border >
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0"  Margin="8" BorderBrush="Black" BorderThickness="1">
+                <WrapPanel>
+                    <Button Content="创建房间" Click="Button_Click" Padding="8"></Button>
+                </WrapPanel>
+            </Border>
+            <Border Grid.Row="1" Margin="8" BorderBrush="Black" BorderThickness="1">
+                <ScrollViewer>
+                    <WrapPanel x:Name="wrapPanelRoom">
+
+                        <!--<local:RoomWidget></local:RoomWidget>
+                    <local:RoomWidget></local:RoomWidget>
+                    <local:RoomWidget></local:RoomWidget>
+                    <local:RoomWidget></local:RoomWidget>-->
+
+
+                    </WrapPanel>
+                </ScrollViewer>
+
+            </Border>
+
+
+        </Grid>
+    </Border>
+
+</Page>

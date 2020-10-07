@@ -16,13 +16,18 @@ using System.Windows.Shapes;
 namespace NetworkWPF.Client
 {
     /// <summary>
-    /// ClientRoomPage.xaml 的交互逻辑
+    /// RoomWidget.xaml 的交互逻辑
     /// </summary>
-    public partial class ClientRoomPage : Page
+    public partial class RoomWidget : UserControl
     {
-        public ClientRoomPage()
+        public RoomWidget()
         {
             InitializeComponent();
+        }
+
+        private void Border_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+
         }
     }
 }

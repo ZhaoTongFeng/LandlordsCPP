@@ -270,32 +270,9 @@ namespace NetworkWPF
             DisConnected();
         }
 
-        //创建房间
-        public void onCreateRoom()
-        {
-            Room.Create(this);
-        }
 
-        //加入房间
-        public void onJoinRoom(JsonElement root)
-        {
-            Room.Join(this, root);
-        }
 
-        //开始游戏
-        public void onStartGame()
-        {
-            room.StartGame();
-        }
 
-        //退出房间
-        public void onExitRoom()
-        {
-            if (room != null)
-            {
-                room.Exit();
-            }
-        }
         
 
         //掉线处理

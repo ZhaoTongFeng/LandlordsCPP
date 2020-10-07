@@ -11,10 +11,11 @@
             <ColumnDefinition></ColumnDefinition>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
         </Grid.ColumnDefinitions>
+        
+        <local:CardWidget></local:CardWidget>
 
-
-        <Frame Name="mFrameLeft" Grid.Column="0"></Frame>
-        <Frame Name="mFrameRight" Grid.Column="1"></Frame>
+        <Frame Name="mFrameLeft" Grid.Column="0" NavigationUIVisibility="Hidden"></Frame>
+        <Frame Name="mFrameRight" Grid.Column="1"  NavigationUIVisibility="Hidden"></Frame>
     </Grid>
 
 </Window>

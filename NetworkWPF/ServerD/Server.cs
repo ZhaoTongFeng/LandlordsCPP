@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NetworkWPF.ServerD;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -18,6 +19,7 @@ namespace NetworkWPF
 
         public static IdentityService mIdentityService = new IdentityService();
         public static IMService iMService = new IMService();
+        public static RoomService mRoomService = new RoomService();
         static Server()
         {
             users = new List<User>();
@@ -68,7 +70,7 @@ namespace NetworkWPF
             });
             mLabRoomCount.Dispatcher.InvokeAsync(() =>
             {
-                mLabRoomCount.Content = Room.rooms.Count;
+                mLabRoomCount.Content = RoomService.rooms.Count;
             });
         }
 
@@ -98,6 +100,8 @@ namespace NetworkWPF
                         user.ConnecToClient(client);
                         user.Register(mIdentityService);
                         user.Register(iMService);
+                        user.Register(mRoomService);
+
                         Log("一个客户端连接了服务器");
                         UpdateStatus();
                         bool b = true;

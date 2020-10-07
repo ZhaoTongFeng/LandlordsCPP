@@ -31,19 +31,22 @@ namespace NetworkWPF
         }
 
 
-        public void SendMsgToAll(string data, User sender)
+        public static void SendMsgToAll(string data, User sender)
         {
             string msg = sender.name + ":" + data;
             Server.SendToAll(new Package(Package.OPT, "IMPage", "onSendMessage",msg));
             Server.Message(msg);
+            Server.Log(msg);
         }
 
-        public void SendMsgToRoom(string data, User sender)
+        public static void SendMsgToRoom(string data, User sender)
         {
             string msg = sender.name + ":" + data;
             sender.room.SendToAllClient(new Package(Package.OPT, "IMPage", "onSendMessage", msg));
+            Server.Log(msg);
         }
-        public void SendMsgToUser(string data, User sender)
+
+        public static void SendMsgToUser(string data, User sender)
         {
 
         }

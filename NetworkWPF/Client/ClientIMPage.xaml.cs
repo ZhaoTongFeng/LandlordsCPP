@@ -21,6 +21,7 @@ namespace NetworkWPF.Client
     public partial class ClientIMPage : Page,INetwork
     {
         public User user;
+        public ClientWindow clientWindow;
 
         public ClientIMPage()
         {

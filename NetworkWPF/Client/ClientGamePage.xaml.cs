@@ -19,8 +19,10 @@ namespace NetworkWPF.Client
     /// <summary>
     /// ClientGamePage.xaml 的交互逻辑
     /// </summary>
-    public partial class ClientGamePage : Page
+    public partial class ClientGamePage : Page,INetwork
     {
+        public User user;
+        public ClientWindow clientWindow;
 
         public ClientGamePage()
         {
@@ -67,6 +69,11 @@ namespace NetworkWPF.Client
             //mCanvas.RegisterName("btn", button);
             ////获取控件
             //Button findbnt = mCanvas.FindName("btn") as Button;
+        }
+
+        public void ProcessData(Package package, User sender)
+        {
+           
         }
 
         private void Cards_Click(object sender, RoutedEventArgs e)

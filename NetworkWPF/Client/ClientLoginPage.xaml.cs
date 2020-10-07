@@ -27,7 +27,7 @@ namespace NetworkWPF
     public partial class ClientLoginPage : Page,INetwork
     {
         public User user;
-
+        public ClientWindow clientWindow;
         public void SetUser(User user)
         {
             textUserName.Text = user.name;
@@ -92,6 +92,7 @@ namespace NetworkWPF
                 {
                     NextPage();
                     labelErr.Content = "登录成功";
+                    clientWindow.clientroomListPage.Show(this);
                 }
                 else
                 {
@@ -119,41 +120,6 @@ namespace NetworkWPF
                 default:
                     break;
             }
-
-
-
-
-            ////客户端
-            //if (pg.type.Equals(Package.MSG))
-            //{
-            //    netMsg = pg.data;
-            //}
-            //else if (pg.type.Equals(Package.OPT))
-            //{
-            //    //传送给类
-            //    //这里是手动传送给模块
-            //    //其实可以在类被初始化的时候在Game进行注册，在这儿进行遍历
-            //    if (pg.clsName.Equals("Game"))
-            //    {
-            //        ProcessNetworkPackage(pg);
-            //    }
-            //    else if (pg.clsName.Equals("Room"))
-            //    {
-            //        Room.ProcessNetworkPackage(pg);
-            //    }
-            //    else if (pg.clsName.Equals("GameMode"))
-            //    {
-
-            //    }
-            //    else
-            //    {
-
-            //    }
-            //}
-            //else
-            //{
-
-            //}
         }
     }
 }

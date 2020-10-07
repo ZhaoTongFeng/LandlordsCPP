@@ -49,10 +49,10 @@ namespace NetworkWPF
         public User user;
 
 
-        ClientLoginPage clientLoginPage;
-        ClientIMPage clientIMPage;
-
-
+        public ClientLoginPage clientLoginPage;
+        public ClientIMPage clientIMPage;
+        public ClientRoomListPage clientroomListPage;
+        public ClientGamePage clientGamePage;
 
         public ClientWindow()
         {
@@ -62,18 +62,34 @@ namespace NetworkWPF
             user.Register(this);
             Task.Run(() => user.ConnectToServer());
             user.mNetState = NetState.Connecting;
+
+            //初始化Page，注入依赖
+            clientLoginPage = new ClientLoginPage();
+            clientLoginPage.user = user;
+            clientLoginPage.clientWindow = this;
+            user.Register(clientLoginPage);
+
+            clientIMPage = new ClientIMPage();
+            clientIMPage.user = user;
+            clientIMPage.clientWindow = this;
+            user.Register(clientIMPage);
+
+            clientroomListPage = new ClientRoomListPage();
+            clientroomListPage.user = user;
+            clientroomListPage.clientWindow = this;
+            user.Register(clientroomListPage);
+
+            clientGamePage = new ClientGamePage();
+            clientGamePage.user = user;
+            clientGamePage.clientWindow = this;
+            user.Register(clientGamePage);
+
+            //设置当前Page
             //mFrameLeft.Source = new Uri("/Client/ClientGamePage.xaml", UriKind.Relative);
             //mFrameLeft.Source = new Uri("/Client/ClientLoginPage.xaml", UriKind.Relative);
 
-            clientLoginPage = new ClientLoginPage();
-            clientLoginPage.user = user;
-            user.Register(clientLoginPage);
-            clientIMPage = new ClientIMPage();
-            clientIMPage.user = user;
-            user.Register(clientIMPage);
-
             mFrameLeft.Content = clientLoginPage;
-            mFrameRight.Content = clientIMPage;
+            
 
             //clientIMPage.Visibility = Visibility.Collapsed;
 

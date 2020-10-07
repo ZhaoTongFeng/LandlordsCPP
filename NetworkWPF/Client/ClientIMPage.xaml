@@ -7,7 +7,7 @@
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="ClientIMPage">
-    <Border Width="200" Margin="10" BorderBrush="Black" BorderThickness="1">
+    <Border Width="200" Margin="8" BorderBrush="Black" BorderThickness="1">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition></RowDefinition>

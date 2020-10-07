@@ -73,9 +73,13 @@
     <Compile Include="ClientWindow.xaml.cs">
       <DependentUpon>ClientWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Client\ClientRoomPage.xaml.cs">
-      <DependentUpon>ClientRoomPage.xaml</DependentUpon>
+    <Compile Include="Client\ClientRoomListPage.xaml.cs">
+      <DependentUpon>ClientRoomListPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Client\RoomWidget.xaml.cs">
+      <DependentUpon>RoomWidget.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ServerD\RoomService.cs" />
     <Compile Include="ServerD\IdentityService.cs" />
     <Compile Include="Public\INetwork.cs" />
     <Compile Include="ServerWindow.xaml.cs">
@@ -103,7 +107,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Client\ClientRoomPage.xaml">
+    <Page Include="Client\ClientRoomListPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Client\RoomWidget.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
