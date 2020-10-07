@@ -24,6 +24,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,6 +34,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -62,21 +64,34 @@
     <Compile Include="Client\ClientGamePage.xaml.cs">
       <DependentUpon>ClientGamePage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Client\ClientIMPage.xaml.cs">
+      <DependentUpon>ClientIMPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Client\ClientLoginPage.xaml.cs">
       <DependentUpon>ClientLoginPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="ClientWindow.xaml.cs">
       <DependentUpon>ClientWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Client\ClientRoomPage.xaml.cs">
+      <DependentUpon>ClientRoomPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="ServerD\IdentityService.cs" />
+    <Compile Include="Public\INetwork.cs" />
     <Compile Include="ServerWindow.xaml.cs">
       <DependentUpon>ServerWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Server\MessageSender.cs" />
-    <Compile Include="Server\Package.cs" />
-    <Compile Include="Server\Room.cs" />
-    <Compile Include="Server\Server.cs" />
-    <Compile Include="Server\User.cs" />
+    <Compile Include="ServerD\IMService.cs" />
+    <Compile Include="ServerD\MessageSender.cs" />
+    <Compile Include="Public\Package.cs" />
+    <Compile Include="Public\Room.cs" />
+    <Compile Include="ServerD\Server.cs" />
+    <Compile Include="Public\User.cs" />
     <Page Include="Client\ClientGamePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Client\ClientIMPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -85,6 +100,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ClientWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Client\ClientRoomPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

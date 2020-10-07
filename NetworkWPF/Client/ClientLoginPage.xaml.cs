@@ -24,15 +24,10 @@ namespace NetworkWPF
     /// <summary>
     /// ClientLoginPage.xaml 的交互逻辑
     /// </summary>
-    public partial class ClientLoginPage : Page
+    public partial class ClientLoginPage : Page,INetwork
     {
-        
-        public static string PATH_USER = "user.json";
+        public User user;
 
-        JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions()
-        {
-            WriteIndented = true,//带空格和缩进的格式化输出
-        };
         public void SetUser(User user)
         {
             textUserName.Text = user.name;
@@ -42,75 +37,123 @@ namespace NetworkWPF
         public ClientLoginPage()
         {
             InitializeComponent();
-            //连接服务器
-
         }
 
         public void NextPage()
         {
             //要将User传入下一个Page
+
         }
 
         private void btnOK_Click(object sender, RoutedEventArgs e)
         {
-            string password = textPassword.Text;
-            string username = textUserName.Text;
-
-            //查看本地用户数据是否存在
-            if (!File.Exists(PATH_USER))
+            if (user.IsConnected())
             {
-                //如果不存在则创建用户数据文件
-                User user = new User();
-                user.id = 0;
-                user.name = username;
-                user.password = password;
-
-                Dictionary<String ,User> users = new Dictionary<String, User>();
-                users.Add(user.name,user);
-                string jsonString = JsonSerializer.Serialize(users, JsonSerializerOptions);
-                File.WriteAllText(PATH_USER, jsonString);
-                //跳转游戏大厅
-                NextPage();
+                user.password = textPassword.Text;
+                user.name = textUserName.Text;
+                Package package = new Package(Package.OPT, "Identity", "login", JsonSerializer.Serialize(user));
+                user.Send(package);
             }
             else
             {
-                //存在则读取本地数据
-                string jsonString = File.ReadAllText(PATH_USER);
-                Dictionary<String, User> users = JsonSerializer.Deserialize<Dictionary<String, User>>(jsonString);
-                int id = users.Count;
+                labelErr.Content = user.GetNetStateName();
+            }
 
-                //和输入信息进行比较
-                if (users.ContainsKey(username))
+        }
+
+
+        public void onConnected(string data,User sender)
+        {
+            bool isConnected = Boolean.Parse(data);
+
+            labelErr.Dispatcher.InvokeAsync(() =>
+            {
+                if (isConnected)
                 {
-                    User user = users[username];
-                    if (user.password == password)
-                    {
-                        //跳转游戏大厅
-                        NextPage();
-                        labelErr.Content = "登录成功";
-                    }
-                    else
-                    {
-                        //如果用户存在但是密码错误则显示错误信息
-                        textPassword.Text = "";
-                        labelErr.Content = "密码错误";
-                    }
+                    labelErr.Content = "网络连接成功";
+                    user.mNetState = NetState.Connected;
                 }
                 else
                 {
-                    //如果用户不存在则注册，显示注册成功
-                    User user = new User();
-                    user.id = id;
-                    user.name = username;
-                    user.password = password;
-                    users.Add(user.name, user);
-                    jsonString = JsonSerializer.Serialize(users, JsonSerializerOptions);
-                    File.WriteAllText(PATH_USER, jsonString);
-                    labelErr.Content = "注册成功";
-                    //跳转游戏大厅
-                    NextPage();
+                    labelErr.Content = "网络连接失败";
+                    user.mNetState = NetState.DisConnected;
                 }
+            });
+        }
+
+        public void onLogin(string data, User sender)
+        {
+            //服务器传回的User，包含从数据库中保存的数据，这里暂时没有对当前的user进行设置
+            User user = JsonSerializer.Deserialize<User>(data);
+            labelErr.Dispatcher.InvokeAsync(() =>
+            {
+                sender.isLogin = user.isLogin;
+                if (user.isLogin)
+                {
+                    NextPage();
+                    labelErr.Content = "登录成功";
+                }
+                else
+                {
+                    textPassword.Text = "";
+                    labelErr.Content = "密码错误";
+                }
+            });
+
+        }
+
+        public void ProcessData(Package package, User sender)
+        {
+            if (!package.clsName.Equals("LoginPage"))
+            {
+                return;
             }
+            switch (package.funName)
+            {
+                case "onConnected":
+                    onConnected(package.data, sender);
+                    break;
+                case "onLogin":
+                    onLogin(package.data,sender);
+                    break;
+                default:
+                    break;
+            }
+
+
+
+
+            ////客户端
+            //if (pg.type.Equals(Package.MSG))
+            //{
+            //    netMsg = pg.data;
+            //}
+            //else if (pg.type.Equals(Package.OPT))
+            //{
+            //    //传送给类
+            //    //这里是手动传送给模块
+            //    //其实可以在类被初始化的时候在Game进行注册，在这儿进行遍历
+            //    if (pg.clsName.Equals("Game"))
+            //    {
+            //        ProcessNetworkPackage(pg);
+            //    }
+            //    else if (pg.clsName.Equals("Room"))
+            //    {
+            //        Room.ProcessNetworkPackage(pg);
+            //    }
+            //    else if (pg.clsName.Equals("GameMode"))
+            //    {
+
+            //    }
+            //    else
+            //    {
+
+            //    }
+            //}
+            //else
+            //{
+
+            //}
         }
     }
 }

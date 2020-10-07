@@ -104,7 +104,7 @@ namespace NetworkWPF
             room.users.Add(user);
             user.room = room;
 
-            MessageSender.SendToRoomUsers(user, String.Format(msgs["join"], user.name));
+            //MessageSender.SendToRoomUsers(user, String.Format(msgs["join"], user.name));
             return true;
         }
 
@@ -115,7 +115,7 @@ namespace NetworkWPF
         /// </summary>
         public void StartGame()
         {
-            MessageSender.SendToRoomUsers(user,String.Format(msgs["start"]));
+            //MessageSender.SendToRoomUsers(user,String.Format(msgs["start"]));
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace NetworkWPF
             rooms.Remove(user.room.id);
             user.room = null;
             users.Remove(user);
-            MessageSender.SendToRoomUsers(user, String.Format(msgs["exit"], user.name));
+            //MessageSender.SendToRoomUsers(user, String.Format(msgs["exit"], user.name));
         }
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace NetworkWPF
         public void Shutdown()
         {
             count--;
-            MessageSender.SendToRoomUsers(user,String.Format(msgs["shutdown"]));
+           // MessageSender.SendToRoomUsers(user,String.Format(msgs["shutdown"]));
         }
 
         public string GetStateName()
@@ -157,11 +157,11 @@ namespace NetworkWPF
         /// 给房间中的所有玩家发送消息
         /// </summary>
         /// <param name="msg"></param>
-        public void SendToAllClient(string msg)
+        public void SendToAllClient(Package pg)
         {
             for (int i = 0; i < users.Count; i++)
             {
-                users[i].Send(msg);
+                users[i].Send(pg);
             }
         }
     }

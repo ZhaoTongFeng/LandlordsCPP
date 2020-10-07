@@ -27,7 +27,7 @@ namespace NetworkWPF
             labelIP.Content = Server.localIP;
             labelPort.Content = Server.port;
 
-            Server.Start(textBlockLog, labelRoomCount, labelUserCount);
+            Server.Start(textBlockMessage, textBlockLog, labelRoomCount, labelUserCount);
         }
 
         private void ServerWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)

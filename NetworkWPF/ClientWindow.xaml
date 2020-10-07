@@ -6,7 +6,15 @@
         xmlns:local="clr-namespace:NetworkWPF"
         mc:Ignorable="d"
         Title="ClientWindow" Height="450" Width="800">
-    <Frame Name="mFrame" >
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
 
-    </Frame>
+
+        <Frame Name="mFrameLeft" Grid.Column="0"></Frame>
+        <Frame Name="mFrameRight" Grid.Column="1"></Frame>
+    </Grid>
+
 </Window>

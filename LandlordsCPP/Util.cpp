@@ -139,7 +139,6 @@ void Util::SortNum(int* arr, const int& count, bool littleFirst)
             tmpi = tmp_index[j - 1];
             tmp_index[j - 1] = tmp_index[j];
             tmp_index[j] = tmpi;
-
         }
     }
     //最后再用顺序对出牌进行排序

@@ -11,6 +11,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
             <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition Width="200"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
         <Border Grid.Column="0" Margin="10" BorderBrush="Black" BorderThickness="1">
@@ -31,11 +32,11 @@
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label Content="在线人数"></Label>
-                        <Label x:Name="labelUserCount" Content="3"></Label>
+                        <Label x:Name="labelUserCount" Content="0"></Label>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <Label Content="房间数量"></Label>
-                        <Label x:Name="labelRoomCount" Content="3"></Label>
+                        <Label x:Name="labelRoomCount" Content="0"></Label>
                     </StackPanel>
                 </StackPanel>
 
@@ -48,5 +49,11 @@
                 <TextBlock Name="textBlockLog"/>
             </ScrollViewer>
         </Border>
+        <Border Grid.Column="2" Margin="10" BorderBrush="Black" BorderThickness="1">
+            <ScrollViewer>
+                <TextBlock Name="textBlockMessage"/>
+            </ScrollViewer>
+        </Border>
+        
     </Grid>
 </Window>
