@@ -58,7 +58,7 @@ namespace NetworkWPF
                 case PlayerState.Online:
                     return "在线";
                 case PlayerState.InRoom:
-                    return "等待中";
+                    return "房间中";
                 case PlayerState.Playing:
                     return "游戏中";
                 default:
@@ -88,6 +88,20 @@ namespace NetworkWPF
                     return "连接失败";
                 default:
                     return "";
+            }
+        }
+
+        public bool isPrepare { get; set; }
+
+        public string GetPrepareName()
+        {
+            if (isPrepare)
+            {
+                return "准备就绪";
+            }
+            else
+            {
+                return "未准备";
             }
         }
 

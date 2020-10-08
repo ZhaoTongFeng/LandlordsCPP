@@ -60,9 +60,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="CardWidget.cs" />
+    <Compile Include="Client\CardsWidget.xaml.cs">
+      <DependentUpon>CardsWidget.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Client\ClientGameCallPage.xaml.cs">
+      <DependentUpon>ClientGameCallPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Client\ClientGamePage.xaml.cs">
       <DependentUpon>ClientGamePage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Client\ClientGamePreparePage.xaml.cs">
+      <DependentUpon>ClientGamePreparePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Client\ClientIMPage.xaml.cs">
       <DependentUpon>ClientIMPage.xaml</DependentUpon>
@@ -76,9 +84,18 @@
     <Compile Include="Client\ClientRoomListPage.xaml.cs">
       <DependentUpon>ClientRoomListPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Client\ClientRoomPage.xaml.cs">
+      <DependentUpon>ClientRoomPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Client\RoomWidget.xaml.cs">
       <DependentUpon>RoomWidget.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Game\CardsBuf.cs" />
+    <Compile Include="Game\GameModeInterface.cs" />
+    <Compile Include="Game\LandlordsGameMode.cs" />
+    <Compile Include="Game\LandlordsHander.cs" />
+    <Compile Include="Game\Player.cs" />
+    <Compile Include="Public\Util.cs" />
     <Compile Include="ServerD\RoomService.cs" />
     <Compile Include="ServerD\IdentityService.cs" />
     <Compile Include="Public\INetwork.cs" />
@@ -91,7 +108,19 @@
     <Compile Include="Public\Room.cs" />
     <Compile Include="ServerD\Server.cs" />
     <Compile Include="Public\User.cs" />
+    <Page Include="Client\CardsWidget.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Client\ClientGameCallPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Client\ClientGamePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Client\ClientGamePreparePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -108,6 +137,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Client\ClientRoomListPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Client\ClientRoomPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -130,10 +163,6 @@
     <Page Include="ServerWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Themes\Generic.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -164,6 +193,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Image\bot.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Themes\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Image\Cards.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -5,8 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NetworkWPF.Client"
              mc:Ignorable="d" 
-             Height="100"
-             Width="100"
+             Height="120"
+             Width="90"
              d:DesignHeight="400" d:DesignWidth="400">
 
     <Border>
@@ -20,16 +20,19 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="1*"></RowDefinition>
                 <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
                 <RowDefinition Height="1*"></RowDefinition>
             </Grid.RowDefinitions>
-            <Label x:Name="labelRoomId" Visibility="Hidden"></Label>
-            <Label x:Name="labelRoomName" Content="1号" Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" ></Label>
 
-            <Button x:Name="buttonJoin" Content="加入房间" Grid.Row="1" Grid.ColumnSpan="3" Margin="8"></Button>
+            <Label x:Name="labelRoomName" Content="房间名称" Grid.Row="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" ></Label>
+            <Label x:Name="labelRoomState" Content="房间状态" Grid.Row="1" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" ></Label>
 
-            <Border x:Name="border_0" Background="Black" Grid.Row="2" Grid.Column="0" Margin="8"></Border>
-            <Border x:Name="border_1" Background="Black" Grid.Row="2" Grid.Column="1" Margin="8"></Border>
-            <Border x:Name="border_2" Background="Black" Grid.Row="2" Grid.Column="2" Margin="8"></Border>
+            <Button x:Name="buttonJoin" Content="加入" Grid.Row="2" Grid.ColumnSpan="3" Margin="8" FontSize="8"></Button>
+
+            <Border x:Name="border_0" Background="Black" Grid.Row="3" Grid.Column="0" Margin="8"></Border>
+            <Border x:Name="border_1" Background="Black" Grid.Row="3" Grid.Column="1" Margin="8"></Border>
+            <Border x:Name="border_2" Background="Black" Grid.Row="3" Grid.Column="2" Margin="8"></Border>
+            
         </Grid>
     </Border>
 

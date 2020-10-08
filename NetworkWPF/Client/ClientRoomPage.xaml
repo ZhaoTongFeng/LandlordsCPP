@@ -1,0 +1,39 @@
+﻿<Page x:Class="NetworkWPF.Client.ClientRoomPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:NetworkWPF.Client"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="ClientRoomPage">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        
+        <Border Grid.RowSpan="2" Grid.Column="0" Margin="8" BorderBrush="Black" BorderThickness="1">
+            <DataGrid x:Name="mDataGrid" Grid.Row="1" Grid.Column="0" Width="200"></DataGrid>
+        </Border>
+
+        
+        
+        <Border Grid.Row="0" Grid.Column="1" Margin="8" BorderBrush="Black" BorderThickness="1">
+            <WrapPanel>
+                <Button Content="退出房间" x:Name="ExitBtn" Padding="8" Margin="0,0,8,0" Click="ExitBtn_Click"></Button>
+                <Button Content="准备" x:Name="PrepareBtn" Padding="8" Margin="0,0,8,0" Click="PrepareBtn_Click"></Button>
+                <Label Content="延迟：2 ms" x:Name="labelDelay" Padding="8" Margin="0,0,8,0" HorizontalAlignment="Center" VerticalAlignment="Center"></Label>
+            </WrapPanel>
+        </Border>
+
+        <Border Grid.Row="1" Grid.Column="1" Margin="8" BorderBrush="Black" BorderThickness="1">
+            <Frame Name="mGameFrame"></Frame>
+        </Border>
+    </Grid>
+</Page>

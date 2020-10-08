@@ -1,0 +1,56 @@
+﻿<Page x:Class="NetworkWPF.Client.ClientGameCallPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:NetworkWPF.Client"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="ClientGameCallPage">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition Height="50"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <Canvas x:Name="topCanvas" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="3" Grid.RowSpan="1">
+            <local:CardsWidget Canvas.Left="0" Canvas.Top="0"></local:CardsWidget>
+            <local:CardsWidget Canvas.Left="20" Canvas.Top="0"></local:CardsWidget>
+        </Canvas>
+
+        <Canvas x:Name="leftCanvas" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="1" Grid.RowSpan="3">
+            <local:CardsWidget Canvas.Top="0"></local:CardsWidget>
+            <local:CardsWidget Canvas.Top="20"></local:CardsWidget>
+        </Canvas>
+        
+        <Canvas x:Name="rightCanvas" Grid.Column="4" Grid.Row="1" Grid.ColumnSpan="1" Grid.RowSpan="3"></Canvas>
+        
+        <Canvas x:Name="centerCanvas" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3" Grid.RowSpan="2">
+            <local:CardsWidget Canvas.Top="0"></local:CardsWidget>
+            <local:CardsWidget Canvas.Top="20"></local:CardsWidget>
+        </Canvas>
+
+        <Button Name="buttonCallNull" Content="不叫" Grid.Column="1" Grid.Row="3"></Button>
+        <Button Name="buttonCall" Content="叫地主" Grid.Column="2" Grid.Row="3" Click="buttonCall_Click"></Button>
+        <Button Name="buttonCallRob" Content="抢地主" Grid.Column="3" Grid.Row="3"></Button>
+
+        <Button Name="buttonOutNull" Content="不要" Grid.Column="1" Grid.Row="3"></Button>
+        <Button Name="buttonOut" Content="出牌" Grid.Column="3" Grid.Row="3"></Button>
+
+        <Canvas x:Name="bottomCanvas" Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="3" Grid.RowSpan="1">
+
+        </Canvas>
+        
+    </Grid>
+</Page>

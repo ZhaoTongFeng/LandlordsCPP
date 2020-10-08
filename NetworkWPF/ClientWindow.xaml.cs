@@ -52,7 +52,12 @@ namespace NetworkWPF
         public ClientLoginPage clientLoginPage;
         public ClientIMPage clientIMPage;
         public ClientRoomListPage clientroomListPage;
+        public ClientRoomPage clientRoomPage;
         public ClientGamePage clientGamePage;
+        public ClientGameCallPage clientGameCallPage;
+        public ClientGamePreparePage clientGamePreparePage;
+
+
 
         public ClientWindow()
         {
@@ -79,10 +84,27 @@ namespace NetworkWPF
             clientroomListPage.clientWindow = this;
             user.Register(clientroomListPage);
 
+            clientRoomPage = new ClientRoomPage();
+            clientRoomPage.user = user;
+            clientRoomPage.clientWindow = this;
+            user.Register(clientRoomPage);
+
             clientGamePage = new ClientGamePage();
             clientGamePage.user = user;
             clientGamePage.clientWindow = this;
             user.Register(clientGamePage);
+
+            clientGameCallPage = new ClientGameCallPage();
+            clientGameCallPage.user = user;
+            clientGameCallPage.clientWindow = this;
+            user.Register(clientGameCallPage);
+
+
+            clientGamePreparePage = new ClientGamePreparePage();
+            clientGamePreparePage.user = user;
+            clientGamePreparePage.clientWindow = this;
+            user.Register(clientGamePreparePage);
+
 
             //设置当前Page
             //mFrameLeft.Source = new Uri("/Client/ClientGamePage.xaml", UriKind.Relative);

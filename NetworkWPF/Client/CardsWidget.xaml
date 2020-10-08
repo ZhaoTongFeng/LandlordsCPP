@@ -1,0 +1,16 @@
+﻿<UserControl x:Class="NetworkWPF.Client.CardsWidget"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NetworkWPF.Client"
+             mc:Ignorable="d" 
+             d:DesignHeight="87" d:DesignWidth="57">
+    <Grid>
+        <Image Name="mImage" Source="/NetworkWPF;component/Image/Cards.png"></Image>
+
+        <Label Name="mTxt" Content="A"></Label>
+        
+        
+    </Grid>
+</UserControl>

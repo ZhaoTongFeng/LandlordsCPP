@@ -20,14 +20,51 @@ namespace NetworkWPF.Client
     /// </summary>
     public partial class RoomWidget : UserControl
     {
+        List<Border> borders;
         public RoomWidget()
         {
             InitializeComponent();
+            borders = new List<Border>();
+            borders.Add(border_0);
+            borders.Add(border_1);
+            borders.Add(border_2);
         }
-
-        private void Border_SizeChanged(object sender, SizeChangedEventArgs e)
+        
+        public void onUpdate(Room room)
         {
-
+            onCountUpdated(room.count,room.prepareCount);
+            onStateUpdate(room.state);
         }
+
+        //人数变化
+        private void onCountUpdated(int count,int prepareCount)
+        {
+            for(int i = 0; i < count; i++)
+            {
+                borders[i].Background= Brushes.Red;
+            }
+            for (int i = 0; i < prepareCount; i++)
+            {
+                borders[i].Background = Brushes.Yellow;
+            }
+        }
+
+        private void onStateUpdate(RoomState state)
+        {
+            switch (state)
+            {
+                case RoomState.Prepare:
+                    labelRoomState.Content = "准备中";
+                    break;
+                case RoomState.Playing:
+                    labelRoomState.Content = "游戏中";
+                    buttonJoin.IsEnabled = false;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+
     }
 }

@@ -1,8 +1,12 @@
-﻿using System;
+﻿using LandlordsCS;
+using NetworkWPF.Public;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NetworkWPF.ServerD
@@ -11,7 +15,7 @@ namespace NetworkWPF.ServerD
     {
 
         //房间列表
-        public static Dictionary<int, Room> rooms = new Dictionary<int, Room>();
+        public static volatile Dictionary<string, Room> rooms = new Dictionary<string, Room>();
 
         //房间总数
         public static int count = 0;
@@ -27,9 +31,31 @@ namespace NetworkWPF.ServerD
         };
 
 
+
         static RoomService()
         {
-            //开个线程不停的告诉闲置状态用户房间信息，
+            Thread thread = new Thread(DelayTest);
+            thread.IsBackground = true;
+            thread.Start();
+        }
+
+
+        //延迟测试
+        private static long lastTime = 0;
+        public static void DelayTest()
+        {
+            while (Server.isRunning)
+            {
+                long cur = Server.GetMilTime();
+
+                if (cur - lastTime > 1000)
+                {
+                    lastTime = cur;
+                    long timeStamp = Util.GetTimeStamp();
+
+                    Server.SendToAll(new Package(Package.OPT, "RoomPage", "onTestDelay", timeStamp.ToString()));
+                }
+            }
         }
 
 
@@ -50,82 +76,165 @@ namespace NetworkWPF.ServerD
                 case "Join":
                     Join(package.data, sender);
                     break;
+                case "Prepare":
+                    Prepare(package.data, sender);
+                    break;
                 case "Exit":
                     Exit(package.data, sender);
                     break;
                 case "Start":
                     StartGame(package.data, sender);
                     break;
+                case "ProcessInput":
+                    ProcessInput(package.data, sender);
+                    break;
+
+
+                case "Remove":
+                    Remove(package.data, sender);
+                    break;
                 default:
                     break;
             }
         }
+
+        //////////////////////////////////////////////////////////////////////////////
+        ///游戏大厅操作
         public static void GetList(string data, User sender)
         {
-            //在创建和加入退出销毁开始游戏等等动作之后，room的属性或者rooms的数量会变化
-            //需要将即时信息发送给所有在线用户。
-
+            sender.Send(new Package(Package.OPT, "RoomListPage", "onGetList", JsonSerializer.Serialize(rooms)));
         }
+
         public static void Create(string data, User sender)
         {
-            //创建一个房间，设置房间状态
-            Room room = new Room();
+            if (sender.room != null)
+            {
+                Server.Log(sender.name+ "已经创建或加入了一个房间");
+                return;
+            }
+            //设置房间状态
+            Room room = new Room(new LandlordsGameMode());
             room.id = rooms.Count;
-            room.name = sender.name + "的房间";
-            room.user = sender;
-            room.users = new List<User>();
-            room.users.Add(room.user);
-            room.state = RoomState.Prepare;
 
-            sender.room = room;
+            room.Create(sender);
 
             //添加到List
-            rooms.Add(room.id, room);
+            rooms.Add(room.id.ToString(), room);
 
-            //通知
-            IMService.SendMsgToAll(String.Format(msgs["create"], sender.name),sender);
-            
-            //返回房间信息
+            //返回跳转房间
             sender.Send(new Package(Package.OPT, "RoomListPage", "onCreatedRoom", JsonSerializer.Serialize(room)));
+            
+            //返回房间内人员信息
+            sender.Send(new Package(Package.OPT, "RoomPage", "onUpdate", JsonSerializer.Serialize(room.users)));
+            
+            //通知所有玩家状态变化
+            Server.SendToAll(new Package(Package.OPT, "RoomListPage", "onInsert", JsonSerializer.Serialize(room)));
 
+
+
+
+
+            IMService.SendMsgToAll(String.Format(msgs["create"], sender.name), sender);
             Server.UpdateStatus();
         }
 
         public static void Join(string data, User sender)
         {
-
+            if(sender.room != null)
+            {
+                Server.Log(sender.name + "已经创建或加入了一个房间");
+                return;
+            }
             int id = int.Parse(data);
-            Room room;
-            try
+            Room room = null;
+            if (!rooms.ContainsKey(id.ToString()))
             {
-                rooms.TryGetValue(id, out room);
-                room.users.Add(sender);
-                sender.room = room;
-                IMService.SendMsgToRoom(String.Format(msgs["join"],sender.name), sender);
-                //返回房间信息
-                sender.Send(new Package(Package.OPT, "RoomListPage", "onJoinRoom", JsonSerializer.Serialize(room)));
+                Server.Log(id + "房间不存在");
+                return;
             }
-            catch
+            room = rooms[id.ToString()];
+            if (room.IsFull())
             {
-                //这里还没有处理房间已经消失的情况
+                Server.Log(sender.name + "房间已满");
+                return;
             }
+            room.Enter(sender);
+
+            //跳转房间
+            sender.Send(new Package(Package.OPT, "RoomListPage", "onJoinRoom", JsonSerializer.Serialize(room)));
+
+            //返回房间内人员信息
+            sender.room.SendToAllClient(new Package(Package.OPT, "RoomPage", "onUpdate", JsonSerializer.Serialize(room.users)));
+
+            //通知所有玩家房间状态变化
+            Server.SendToAll(new Package(Package.OPT, "RoomListPage", "onUpdate", JsonSerializer.Serialize(room)));
+
+
+
+            IMService.SendMsgToRoom(String.Format(msgs["join"], sender.name), sender);
         }
 
 
+
+
+
+
+        //////////////////////////////////////////////////////////////////////////////
+        ///房间内操作
+
+        
+        public void Prepare(string data, User sender)
+        {
+            sender.room.Prepare(sender);
+
+            sender.Send(new Package(Package.OPT, "RoomPage", "onPrepare", ""));
+
+            //返回房间内人员信息
+            sender.room.SendToAllClient(new Package(Package.OPT, "RoomPage", "onUpdate", JsonSerializer.Serialize(sender.room.users)));
+            IMService.SendMsgToRoom(sender.name+"准备就绪", sender);
+
+
+            //如果全部玩家都已经准备则开始游戏
+            if (sender.room.IsAllPrepare())
+            {
+                
+            }
+
+        }
+
         public void Exit(string data, User sender)
         {
-
+            //返回房间内人员信息
+            sender.room.SendToAllClient(new Package(Package.OPT, "RoomPage", "onUpdate", JsonSerializer.Serialize(sender.room.users)));
         }
 
         public void StartGame(string data, User sender)
         {
+            sender.room.StartGame(sender);
 
+            //返回房间内人员信息
+            sender.room.SendToAllClient(new Package(Package.OPT, "RoomPage", "onUpdate", JsonSerializer.Serialize(sender.room.users)));
         }
 
-        public void CloseRoom()
+
+        public void ProcessInput(string data, User sender)
+        {
+            //返回各种信息，user已经传入了函数，在函数中直接调用即可
+            sender.room.ProcessInput(data, sender);
+        }
+
+
+        public void Remove(string data, User sender)
         {
             count--;
+
+            Room room = sender.room;
+
+            //返回房间信息
+            sender.Send(new Package(Package.OPT, "RoomListPage", "onJoinRoom", room.id.ToString()));
+
             Server.UpdateStatus();
+
         }
     }
 }

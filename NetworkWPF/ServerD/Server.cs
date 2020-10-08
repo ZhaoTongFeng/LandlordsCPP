@@ -1,6 +1,7 @@
 ﻿using NetworkWPF.ServerD;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Windows.Controls;
@@ -13,13 +14,21 @@ namespace NetworkWPF
         public static List<User> users { get; set; }
         public static IPAddress localIP { get; set; }
         public static int port { get; set; }
+        
+        public static TcpListener listener { get; set; }
 
-        private static bool isRunning = true;
-        private static bool isStopped = false;
+        public static bool isRunning = true;
 
+        public static bool isStopped = false;
+
+        public static Stopwatch stopWatch = new Stopwatch();
+        
+        //服务组件
         public static IdentityService mIdentityService = new IdentityService();
         public static IMService iMService = new IMService();
         public static RoomService mRoomService = new RoomService();
+
+
         static Server()
         {
             users = new List<User>();
@@ -34,49 +43,19 @@ namespace NetworkWPF
                     break;
                 }
             }
+            stopWatch.Start();
         }
 
-        public static TcpListener listener;
-
-
-
-        public static TextBlock logTextBlock;
-        public static void Log(string msg)
+        public static long GetMilTime()
         {
-            logTextBlock.Dispatcher.InvokeAsync(() =>
-            {
-                logTextBlock.Text += string.Format("{0}:{1}\n", DateTime.Now.ToString("hh:mm:ss"), msg);
-            });
+            return stopWatch.ElapsedMilliseconds;
         }
 
-        public static TextBlock messageTextBlock;
-        public static void Message(string msg)
-        {
-            messageTextBlock.Dispatcher.InvokeAsync(() =>
-            {
-                messageTextBlock.Text += string.Format("{0}:{1}\n", DateTime.Now.ToString("hh:mm:ss"), msg);
-            });
-        }
-
-        public static Label mLabRoomCount;
-        public static Label mLabUserCount;
-
-
-        public static void UpdateStatus()
-        {
-            mLabUserCount.Dispatcher.InvokeAsync(() =>
-            {
-                mLabUserCount.Content = users.Count;
-            });
-            mLabRoomCount.Dispatcher.InvokeAsync(() =>
-            {
-                mLabRoomCount.Content = RoomService.rooms.Count;
-            });
-        }
 
         //启动
         public async static void Start(TextBlock textBlockIM, TextBlock textBlock,Label labRoomCount,Label labUserCount)
         {
+            //绑定UI控件
             messageTextBlock = textBlockIM;
             logTextBlock = textBlock;
             mLabRoomCount = labRoomCount;
@@ -85,28 +64,33 @@ namespace NetworkWPF
             //开启监听
             listener = new TcpListener(Server.localIP, Server.port);
             listener.Start();
-
-            Log("服务器已启动");
-
             isRunning = true;
+            Log("服务器已启动");
             while (isRunning)
             {
                 if (!isStopped)
                 {
                     try
                     {
+                        //等待连接
                         TcpClient client = await listener.AcceptTcpClientAsync();
                         User user = new User();
                         user.ConnecToClient(client);
+
+                        //注册组件
                         user.Register(mIdentityService);
                         user.Register(iMService);
                         user.Register(mRoomService);
 
-                        Log("一个客户端连接了服务器");
+
+                        //连接成功
                         UpdateStatus();
+                        Server.users.Add(user);
+                        Log("一个客户端连接了服务器");
+
+                        //返回消息
                         bool b = true;
                         user.Send(new Package(Package.OPT, "LoginPage", "onConnected",b.ToString()));
-                        Server.users.Add(user);
                     }
                     catch
                     {
@@ -116,6 +100,7 @@ namespace NetworkWPF
             }
             Log("服务器已关闭");
         }
+
 
 
         public static void Stop()
@@ -142,41 +127,50 @@ namespace NetworkWPF
         //不能在静态函数中使用this
         public void ProcessData(Package pg, User sender)
         {
-            //if (package.type == null)
-            //{
 
-            //}
-            //else if (package.type.Equals(Package.MSG))
-            //{
-            //    MessageSender.SendToAllUsers(this, package.data);
-            //}
-            //else if (package.type.Equals(Package.OPT))
-            //{
-            //    if (package.clsName.Equals("Room"))
-            //    {
-            //        switch (package.funName)
-            //        {
-            //            case "create": onCreateRoom(); break;
-            //            case "join": onJoinRoom(root); break;
-            //            case "start": onStartGame(); break;
-            //            case "exit": onExitRoom(); break;
-            //            default: Send("msg," + "报头不匹配，无法解析"); break;
-            //        }
-            //    }
-            //    else if (package.clsName.Equals("User"))
-            //    {
-            //        switch (package.funName)
-            //        {
-            //            case "login": onLogin(root); break;
-            //            case "logout": onLogout(); break;
-            //            default: break;
-            //        }
-            //    }
-            //}
-            //else
-            //{
+        }
 
-            //}
+
+
+
+
+
+
+
+
+        ///////////////////////////////////////////////////////////////
+        ///服务端页面控件刷新
+        public static TextBlock logTextBlock;
+        public static TextBlock messageTextBlock;
+        public static Label mLabRoomCount;
+        public static Label mLabUserCount;
+
+        public static void Log(string msg)
+        {
+            logTextBlock.Dispatcher.InvokeAsync(() =>
+            {
+                logTextBlock.Text += string.Format("{0}:{1}\n", DateTime.Now.ToString("hh:mm:ss"), msg);
+            });
+        }
+
+        public static void Message(string msg)
+        {
+            messageTextBlock.Dispatcher.InvokeAsync(() =>
+            {
+                messageTextBlock.Text += string.Format("{0}:{1}\n", DateTime.Now.ToString("hh:mm:ss"), msg);
+            });
+        }
+
+        public static void UpdateStatus()
+        {
+            mLabUserCount.Dispatcher.InvokeAsync(() =>
+            {
+                mLabUserCount.Content = users.Count;
+            });
+            mLabRoomCount.Dispatcher.InvokeAsync(() =>
+            {
+                mLabRoomCount.Content = RoomService.rooms.Count;
+            });
         }
     }
 }

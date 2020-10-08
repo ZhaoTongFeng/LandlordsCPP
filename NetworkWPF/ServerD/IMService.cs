@@ -33,14 +33,41 @@ namespace NetworkWPF
 
         public static void SendMsgToAll(string data, User sender)
         {
-            string msg = sender.name + ":" + data;
-            Server.SendToAll(new Package(Package.OPT, "IMPage", "onSendMessage",msg));
-            Server.Message(msg);
-            Server.Log(msg);
+            string msg;
+
+            
+            if (sender != null)
+            {
+                msg = sender.name + "：" + data;
+                if (sender.state == PlayerState.InRoom)
+                {
+                    SendMsgToRoom(data, sender);
+                }
+                else
+                {
+                    Server.SendToAll(new Package(Package.OPT, "IMPage", "onSendMessage", msg));
+                    Server.Message(msg);
+                    Server.Log(msg);
+                }
+            }
+            else
+            {
+                msg = "系统" + "：" + data;
+                Server.SendToAll(new Package(Package.OPT, "IMPage", "onSendMessage", msg));
+                Server.Message(msg);
+                Server.Log(msg);
+            }
+
+
         }
 
         public static void SendMsgToRoom(string data, User sender)
         {
+            if (sender.room == null)
+            {
+                Server.Log(sender.name + "不在房间中");
+                return;
+            }
             string msg = sender.name + ":" + data;
             sender.room.SendToAllClient(new Package(Package.OPT, "IMPage", "onSendMessage", msg));
             Server.Log(msg);
