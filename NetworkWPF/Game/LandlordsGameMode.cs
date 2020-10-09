@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.Remoting.Lifetime;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace LandlordsCS
@@ -35,7 +36,7 @@ namespace LandlordsCS
         Rob
     }
 
-    public class LandlordsGameMode : GameModeInterface
+    public class LandlordsGameMode : GameModeInterface,INetwork
     {
 
 
@@ -92,7 +93,8 @@ namespace LandlordsCS
 
         public void ReStart(User sender)
         {
-            
+            mRoom = sender.room;
+
             mCurPlayerIndex = 0;
 
 
@@ -126,13 +128,84 @@ namespace LandlordsCS
             //房间中的三个用户，和players一一对应
             List<User> users = sender.room.users;
 
+
+            
+
             for(int i = 0; i < users.Count; i++)
             {
+                Dictionary<string, string> data = new Dictionary<string, string>();
                 User user = users[i];
                 Player player = players[i];
 
-                string data = JsonSerializer.Serialize(player.GetCards());
-                user.Send(new Package(Package.OPT, "GameCallPage", "onStart", data));
+                //手牌
+                string cardsbuf = JsonSerializer.Serialize(player.GetCards());
+                data.Add("cards", cardsbuf);
+
+                int[] count_cards = new int[2];
+                //另外两家手牌数量
+                for(int j = 1; j <= 2; j++)
+                {
+                    User user_next = users[(i+j)%3];
+                    Player player_next = players[(i + j) % 3];
+                    count_cards[j - 1] = player_next.GetCards().GetSize();
+                }
+                data.Add("count_cards", JsonSerializer.Serialize(count_cards));
+
+                //当前用户在房间中的位置
+                data.Add("indexInRoom", i.ToString());
+                //当前正在执行操作的玩家下标
+                data.Add("curOptIndex", mCurPlayerIndex.ToString());
+
+                //当前游戏阶段
+                data.Add("GameSession", mGameSession.ToString());
+
+                //当前操作玩家
+                if (mCurPlayerIndex == i)
+                {
+                    //这个玩家，应该用什么模式显示按钮
+                    //是叫牌还是出牌由当前游戏阶段决定
+                    data.Add("this","1");
+
+                    //开启倒计时
+                    StartTimer();
+
+                    //初始化计时器，每次操作之后都会初始化计时器
+                    tick = 5;
+                }
+
+
+                user.Send(new Package(Package.OPT, "GameCallPage", "onStart", JsonSerializer.Serialize(data)));
+            }
+        }
+        private Room mRoom;
+
+        public void StartTimer()
+        {
+            Thread thread = new Thread(Timer);
+            thread.IsBackground = true;
+            thread.Start();
+        }
+
+        private long lastTime = 0;
+
+        private int tick = 0;
+
+        public void Timer()
+        {
+            while (Server.isRunning)
+            {
+                long cur = Server.GetMilTime();
+
+                if (cur - lastTime > 1000)
+                {
+                    lastTime = cur;
+
+                    tick--;
+
+                    mRoom.SendToAllClient(new Package(Package.OPT, "GameCallPage", "onTimer", tick.ToString()));
+
+                    
+                }
             }
         }
 
@@ -221,173 +294,201 @@ namespace LandlordsCS
         }
 
 
+        public void ProcessData(Package package, User sender)
+        {
+            if (!package.clsName.Equals("LandlordsGameMode"))
+            {
+                return;
+            }
+            switch (package.funName)
+            {
+                case "Call":
+                    Call(package.data, sender);
+                    break;
+                case "HandOut":
+                    HandOut(package.data, sender);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        private void Call(string data, User sender)
+        {
+            if (mGameSession != GameSession.CALL)
+            {
+                return;   
+            }
+            //ProcessInput
+            inputPoint = -1;
+            if (mCallState == CallState.NO)
+            {
+                if (data.Equals("不叫"))
+                {
+                    inputPoint = 0;
+                }
+                else if (data.Equals("叫地主"))
+                {
+                    mCallState = CallState.CALL;
+                    inputPoint = 1;
+                }
+            }
+            else
+            {
+                if (data.Equals("不叫"))
+                {
+                    inputPoint = 0;
+                }
+                else if (data.Equals("抢地主"))
+                {
+                    mCallState = CallState.Rob;
+                    inputPoint = 2;
+                }
+            }
+
+            //Update
+            if (inputPoint == -1)
+            {
+                return;
+            }
+            numCall++;
+            bool isFinishCall = false;
+            if (numCall <= 2)
+            {
+                if (inputPoint == 1)
+                {
+                    mLandlordsIndex = mCurPlayerIndex;
+                }
+                if (inputPoint != 0)
+                {
+                    mCallArr[mCallArrCount++] = mCurPlayerIndex;
+                }
+                NextPlayer();
+            }
+            else if (numCall == 3)
+            {
+                if (inputPoint == 1)
+                {
+                    mLandlordsIndex = mCurPlayerIndex;
+                }
+                if (inputPoint != 0)
+                {
+                    mCallArr[mCallArrCount++] = mCurPlayerIndex;
+                }
+                if (mCallArrCount == 0)
+                {
+                    mGameSession = GameSession.START;
+                }
+                else if (mCallArrCount == 1)
+                {
+                    mLandlordsIndex = mCallArr[0];
+                    isFinishCall = true;
+                }
+                else
+                {
+                    mCurPlayerIndex = mLandlordsIndex;
+                }
+            }
+            else if (numCall == 4)
+            {
+                isFinishCall = true;
+                if (inputPoint == 0)
+                {
+                    mLandlordsIndex = mCallArr[1];
+                }
+                else if (inputPoint == 2)
+                {
+                    mLandlordsIndex = mCallArr[0];
+                }
+            }
+            if (isFinishCall)
+            {
+                mGameSession = GameSession.PLAYING;
+                mCurPlayerIndex = mLandlordsIndex;
+                CardsBuf cardsBuf = GetCurPlayer().GetCards();
+                mDarkCards.Pop(ref cardsBuf, 3);
+                cardsBuf.SortRank(false);
+
+                GetCurPlayer().mTeamID = 1;
+                NextPlayer();
+                GetCurPlayer().mTeamID = 2;
+                NextPlayer();
+                GetCurPlayer().mTeamID = 2;
+                NextPlayer();
+            }
+        }
+
+        private void HandOut(string data, User sender)
+        {
+            if (mGameSession != GameSession.PREPARE)
+            {
+                return;
+            }
+            inputPoint = -1;
+            if (!mLastCards.IsEmpty())
+            {
+                if (data.Equals("不要"))
+                {
+                    NextPlayer();
+                    mPreCards.MakeEmpty();
+                    mMissCount++;
+                    if (mMissCount == 2)
+                    {
+                        mLastCards.MakeEmpty();
+                        mMissCount = 0;
+                    }
+                }
+            }
+            CardsBuf cards = JsonSerializer.Deserialize<CardsBuf>(data);
+            if (cards != null)
+            {
+                CardsBuf ca = GetCurPlayer().GetCards();
+                if (ca.OutCards(ref mPreCards, ref mLastCards))
+                {
+                    mLastCards.Copy(mPreCards);
+                    mPreCards.SetEmpty();
+                    NextPlayer();
+                    mMissCount = 0;
+                }
+                if (ca.IsEmpty())
+                {
+                    mGameSession = GameSession.FINISH;
+                }
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+        //////////////////////////////////////////////////////
+        /// 客户端传入一个输入，就处理一个，相当于之前的单步调试
+        /// 下面的几个函数全部用不上了，这里只处理游戏逻辑即可
+        /// 只剩发牌，叫牌，出牌
+        //////////////////////////////////////////////////////
+
+
+
 
         //先检测此回合是否为本地玩家进行操作，如果是则将按键对应的指令发送给服务器
         //指令同步，对于指令类游戏，不需要在本地运行任何游戏性操作，只需要相关的游戏状态，比如游戏是否结束，手牌和数量，赢家和输家
         public void ProcessInput(string data, User sender)
         {
-            inputPoint = -1;
 
-            switch (mGameSession)
-            {
-                case GameSession.CALL:
-
-                    if (mCallState == CallState.NO)
-                    {
-                        if (data.Equals("不叫"))
-                        {
-                            inputPoint = 0;
-                        }
-                        else if (data.Equals("叫地主"))
-                        {
-                            mCallState = CallState.CALL;
-                            inputPoint = 1;
-                        }
-                    }
-                    else
-                    {
-                        if (data.Equals("不叫"))
-                        {
-                            inputPoint = 0;
-                        }
-                        else if (data.Equals("抢地主"))
-                        {
-                            mCallState = CallState.Rob;
-                            inputPoint = 2;
-                        }
-                    }
-                    break;
-                case GameSession.PLAYING:
-                    if (!mLastCards.IsEmpty())
-                    {
-                        if (data.Equals("不要"))
-                        {
-                            NextPlayer();
-                            mPreCards.MakeEmpty();
-                            mMissCount++;
-                            if (mMissCount == 2)
-                            {
-                                mLastCards.MakeEmpty();
-                                mMissCount = 0;
-                            }
-                        }
-                    }
-                    CardsBuf cards = JsonSerializer.Deserialize<CardsBuf>(data);
-                    if (cards != null)
-                    {
-                        CardsBuf ca = GetCurPlayer().GetCards();
-                        if (ca.OutCards(ref mPreCards, ref mLastCards))
-                        {
-                            mLastCards.Copy(mPreCards);
-                            mPreCards.SetEmpty();
-                            NextPlayer();
-                            mMissCount = 0;
-                        }
-                        if (ca.IsEmpty())
-                        {
-                            mGameSession = GameSession.FINISH;
-                        }
-                    }
-                    break;
-                case GameSession.FINISH:
-
-                    break;
-                default:
-                    break;
-            }
 
         }
         //不需要在本地处理各种操作，而是放到服务器，服务器告诉谁应该可以做什么
 
         public void UpdateGame(string data, User sender)
         {
-            switch (mGameSession)
-            {
 
-                case GameSession.PREPARE:
-
-                    break;
-                case GameSession.START:
-                    ReStart(sender);
-                    
-                    break;
-                case GameSession.CALL:
-                    if (inputPoint == -1)
-                    {
-                        break;
-                    }
-                    numCall++;
-                    bool isFinishCall = false;
-                    if (numCall <= 2)
-                    {
-                        if (inputPoint == 1)
-                        {
-                            mLandlordsIndex = mCurPlayerIndex;
-                        }
-                        if (inputPoint != 0)
-                        {
-                            mCallArr[mCallArrCount++] = mCurPlayerIndex;
-                        }
-                        NextPlayer();
-                    }
-                    else if (numCall == 3)
-                    {
-                        if (inputPoint == 1)
-                        {
-                            mLandlordsIndex = mCurPlayerIndex;
-                        }
-                        if (inputPoint != 0)
-                        {
-                            mCallArr[mCallArrCount++] = mCurPlayerIndex;
-                        }
-                        if (mCallArrCount == 0)
-                        {
-                            mGameSession = GameSession.START;
-                        }
-                        else if (mCallArrCount == 1)
-                        {
-                            mLandlordsIndex = mCallArr[0];
-                            isFinishCall = true;
-                        }
-                        else
-                        {
-                            mCurPlayerIndex = mLandlordsIndex;
-                        }
-                    }
-                    else if (numCall == 4)
-                    {
-                        isFinishCall = true;
-                        if (inputPoint == 0)
-                        {
-                            mLandlordsIndex = mCallArr[1];
-                        }
-                        else if (inputPoint == 2)
-                        {
-                            mLandlordsIndex = mCallArr[0];
-                        }
-                    }
-                    if (isFinishCall)
-                    {
-                        mGameSession = GameSession.PLAYING;
-                        mCurPlayerIndex = mLandlordsIndex;
-                        CardsBuf cardsBuf = GetCurPlayer().GetCards();
-                        mDarkCards.Pop(ref cardsBuf, 3);
-                        cardsBuf.SortRank(false);
-
-                        GetCurPlayer().mTeamID = 1;
-                        NextPlayer();
-                        GetCurPlayer().mTeamID = 2;
-                        NextPlayer();
-                        GetCurPlayer().mTeamID = 2;
-                        NextPlayer();
-                    }
-                    break;
-                case GameSession.FINISH:
-                    break;
-
-                default:
-                    break;
-            }
         }
 
         //服务器不需要处理到屏幕的输出，只需要通知客户端状态，客户端根据状态进行相应的显示
@@ -395,5 +496,7 @@ namespace LandlordsCS
         {
             return "";
         }
+
+
     }
 }

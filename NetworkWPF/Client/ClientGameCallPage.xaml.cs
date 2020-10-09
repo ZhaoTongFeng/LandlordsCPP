@@ -102,8 +102,7 @@ namespace NetworkWPF.Client
                 Canvas.SetTop(wi, 0);
                 Canvas.SetLeft(wi, pad * i);
                 bottomCanvas.Children.Add(wi);
-                //点数等发牌之后进行设置
-                //mCardsWidgets[i].SetNum(CardsBuf.GetCardName(i + 1));
+
             }
 
             mCenterCardsWidget = new CardsWidget[20];
@@ -177,7 +176,7 @@ namespace NetworkWPF.Client
                     default:
                         break;
                 }
-                user.Send(new Package(Package.OPT, "", "CALL", call.ToString()));
+                user.Send(new Package(Package.OPT, "LandlordsGameMode", "Call", call.ToString()));
             }
         }
 
@@ -198,7 +197,7 @@ namespace NetworkWPF.Client
                 {
 
                 }
-                user.Send(new Package(Package.OPT, "", "OUT", ""));
+                user.Send(new Package(Package.OPT, "LandlordsGameMode", "HandOut", ""));
             }
         }
 
@@ -214,6 +213,9 @@ namespace NetworkWPF.Client
                 case "onStart":
                     onStart(package.data, sender);
                     break;
+                case "onTimer":
+                    onTimer(package.data, sender);
+                    break;
 
 
                 default:
@@ -224,20 +226,120 @@ namespace NetworkWPF.Client
         public void onStart(string data, User sender)
         {
             //初始化游戏之后，这里接受手牌，和数量
-            CardsBuf cards = JsonSerializer.Deserialize<CardsBuf>(data);
-
-            List<int> buf = cards.buf;
-
-            for(int i = 0; i < buf.Count; i++)
+            Dictionary<string, string> dic = JsonSerializer.Deserialize<Dictionary<string, string>>(data);
+            
+            App.Current.Dispatcher.InvokeAsync(() =>
             {
+                //手牌
+                CardsBuf cards = JsonSerializer.Deserialize<CardsBuf>(dic["cards"]);
+
+                List<int> buf = cards.buf;
+
+                for (int i = 0; i < mCardsWidgets.Length; i++)
+                {
+                    if (i < buf.Count)
+                    {
+                        mCardsWidgets[i].Visibility = Visibility.Visible;
+                        mCardsWidgets[i].SetNum(CardsBuf.GetCardName(buf[i]));
+
+                    }
+                    else
+                    {
+                        mCardsWidgets[i].Visibility = Visibility.Hidden;
+                    }
+                }
+
+                //手牌数量
+                int[] count_cards = JsonSerializer.Deserialize<int[]>(dic["count_cards"]);
+                //右边，顺时针方向
+                for (int i = 0; i < mRightCardsWidget.Length; i++)
+                {
+                    if (i < count_cards[0])
+                    {
+                        mRightCardsWidget[i].Visibility = Visibility.Visible;
+
+                    }
+                    else
+                    {
+                        mRightCardsWidget[i].Visibility = Visibility.Hidden;
+                    }
+                }
+                //左边
+                for (int i = 0; i < mLeftCardsWidget.Length; i++)
+                {
+                    if (i < count_cards[1])
+                    {
+                        mLeftCardsWidget[i].Visibility = Visibility.Visible;
+
+                    }
+                    else
+                    {
+                        mLeftCardsWidget[i].Visibility = Visibility.Hidden;
+                    }
+                }
+                //手牌数量
+                bottomNumLabel.Content = buf.Count.ToString();
+                rightNumLabel.Content = count_cards[0].ToString();
+                leftNumLabel.Content = count_cards[1].ToString();
+
+
+                //当前游戏阶段
+                GameSession gameSession = (GameSession)System.Enum.Parse(typeof(GameSession), dic["GameSession"]);
+
                 
-            }
+                if (dic.ContainsKey("this"))
+                {
+                    //首个叫地主的玩家，本玩家为当前操作玩家
+                    int n = int.Parse(dic["this"]);
+                    if (gameSession == GameSession.CALL)
+                    {
+                        ShowCall(n);
+                    }else if (gameSession == GameSession.PLAYING)
+                    {
+                        ShowOut(n);
+                    }
+                }
+
+                indexInRoom = int.Parse(dic["indexInRoom"]);
+                curOptIndex = int.Parse(dic["curOptIndex"]);
+
+            });
 
         }
+
+        /// <summary>
+        /// 在房间玩家列表中的位置
+        /// </summary>
+        private int indexInRoom;
+
+        private int curOptIndex;
 
         public void onTimer(string data, User sender)
         {
             //这里对计时器进行更新
+            //三个玩家是同步的
+
+            //如果计时器结束后，此玩家是当前操作玩家，则会自动调用各个阶段的默认事件
+            int tick = int.Parse(data);
+            App.Current.Dispatcher.InvokeAsync(() => {
+                leftTimerLabel.Content = "";
+                rightTimerLabel.Content = "";
+                bottomTimerLabel.Content = "";
+
+                if (indexInRoom == curOptIndex)
+                {
+                    bottomTimerLabel.Content = tick.ToString();
+                }
+                else if ((indexInRoom + 1) % 3 == curOptIndex)
+                {
+                    leftTimerLabel.Content = tick.ToString();
+
+                }
+                else if ((indexInRoom + 2) % 3 == curOptIndex)
+                {
+                    rightTimerLabel.Content = tick.ToString();
+                }
+            });
         }
 
         public void onCall(string data, User sender)
@@ -250,7 +352,7 @@ namespace NetworkWPF.Client
 
         public void onCallFinish(string data, User sender)
         {
-
+            //叫牌结束之后，将队伍状态和新的手牌数量进行发送并3张底牌进行显示
         }
 
         public void onOut(string data, User sender)
@@ -264,7 +366,7 @@ namespace NetworkWPF.Client
 
         public void onGameFinish(string data, User sender)
         {
-
+            //游戏结束之后弹出结算窗口，结算窗口除基本信息以外只显示确定按钮
         }
     }
 }

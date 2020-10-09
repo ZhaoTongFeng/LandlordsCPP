@@ -20,9 +20,11 @@ namespace NetworkWPF.Client
     /// </summary>
     public partial class CardsWidget : UserControl
     {
+
         public bool isUp;
-        public void SetNum(string str)
-        {
+
+
+        public void SetNum(string str) {
             mTxt.Content = str;
         }
 
@@ -31,15 +33,19 @@ namespace NetworkWPF.Client
             InitializeComponent();
             isUp = false;
 
-
             this.MouseDown += mouseDown;
             this.MouseUp += mouseUp;
             this.MouseEnter += mouseEnter;
         }
 
-
         public static bool isMouseDown = false;
+
         private static bool dirction = false;
+
+
+
+
+
 
         private void mouseEnter(object sender, MouseEventArgs e)
         {

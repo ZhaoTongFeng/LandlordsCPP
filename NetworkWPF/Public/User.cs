@@ -241,10 +241,15 @@ namespace NetworkWPF
                 }
                 
                 Package pg = JsonSerializer.Deserialize<Package>(receiveString);
-                foreach (INetwork item in networks)
+                for(int i=0;i< networks.Count; i++)
                 {
-                    item.ProcessData(pg, this);
+                    networks[i].ProcessData(pg, this);
                 }
+                //foreach是只读的，如果在另外一个线程中修改之后，恰巧这里又在遍历就会报错
+                //foreach (INetwork item in networks)
+                //{
+                //    item.ProcessData(pg, this);
+                //}
             }
         }
 

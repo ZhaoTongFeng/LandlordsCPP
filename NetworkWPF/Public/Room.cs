@@ -78,7 +78,7 @@ namespace NetworkWPF
         {
 
         }
-        public Room(GameModeInterface mode)
+        public Room(LandlordsGameMode mode)
         {
             GameMode = mode;
         }
@@ -136,7 +136,7 @@ namespace NetworkWPF
 
         //游戏部分
 
-        GameModeInterface GameMode;
+        public LandlordsGameMode GameMode;
 
         public void StartGame(User sender)
         {
@@ -151,8 +151,7 @@ namespace NetworkWPF
         {
             GameMode.ProcessInput(data, sender);
             GameMode.UpdateGame(data, sender);
-            GameMode.GenerateOutput(data, sender);
-            
+            GameMode.GenerateOutput(data, sender);   
         }
     }
 }

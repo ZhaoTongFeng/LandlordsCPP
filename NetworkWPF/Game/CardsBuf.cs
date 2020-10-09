@@ -46,6 +46,11 @@ namespace LandlordsCS
 
         public CardsEnum mCardsMode { get; set; }
 
+        public CardsBuf()
+        {
+
+        }
+
         public CardsBuf(int size)
         {
             buf = new List<int>(size);

@@ -79,6 +79,9 @@ namespace NetworkWPF.ServerD
                 case "Prepare":
                     Prepare(package.data, sender);
                     break;
+
+
+
                 case "Exit":
                     Exit(package.data, sender);
                     break;
@@ -197,11 +200,25 @@ namespace NetworkWPF.ServerD
                 sender.room.SendToAllClient(new Package(Package.OPT, "RoomPage", "onStartGame", ""));
                 sender.room.StartGame(sender);
                 IMService.SendMsgToRoom("游戏开始", sender);
+                for(int i=0;i< sender.room.users.Count; i++)
+                {
+                    ///!!!
+                    ///要想Gamemode能够处理客户端的数据，这里进行注册
+
+                    sender.room.users[i].Register(sender.room.GameMode);
+                }
             }
             //返回房间内人员信息
             sender.room.SendToAllClient(new Package(Package.OPT, "RoomPage", "onUpdate", JsonSerializer.Serialize(sender.room.users)));
 
         }
+
+
+
+
+
+
+
 
         public void Exit(string data, User sender)
         {
