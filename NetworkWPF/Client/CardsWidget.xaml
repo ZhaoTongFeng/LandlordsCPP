@@ -9,7 +9,7 @@
     <Grid>
         <Image Name="mImage" Source="/NetworkWPF;component/Image/Cards.png"></Image>
 
-        <Label Name="mTxt" Content="A"></Label>
+        <Label Name="mTxt" Content=""></Label>
         
         
     </Grid>
