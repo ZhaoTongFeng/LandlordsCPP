@@ -29,9 +29,7 @@ namespace NetworkWPF.Client
             InitializeComponent();
 
 
-            App.Current.Dispatcher.InvokeAsync(() => {
-                mGameFrame.Content = clientWindow.clientGameCallPage;
-            });
+
         }
 
         
@@ -102,7 +100,9 @@ namespace NetworkWPF.Client
 
         public void onStartGame(string data, User sender)
         {
-
+            App.Current.Dispatcher.InvokeAsync(() => {
+                mGameFrame.Content = clientWindow.clientGameCallPage;
+            });
         }
 
         public void onUpdate(string data, User sender)

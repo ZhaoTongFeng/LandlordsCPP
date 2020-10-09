@@ -43,6 +43,7 @@ namespace NetworkWPF
         //    Server.SendToAllClient(package.ToString());
         //}
 
+
         ////房间广播
         //public static void SendToRoomUsers(User sender,string msg)
         //{
@@ -50,6 +51,7 @@ namespace NetworkWPF
         //    Package package = PackMessage(JsonSerializer.Serialize(message));
         //    sender.room.SendToAllClient(package.ToString());
         //}
+
 
         ////一对一
         //public static void SendToUser(User sender, User target,string msg)

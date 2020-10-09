@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -36,8 +37,6 @@ namespace NetworkWPF.Client
 
         //扑克牌偏移值
         int pad = 20;
-
-
 
         public ClientGameCallPage()
         {
@@ -206,20 +205,42 @@ namespace NetworkWPF.Client
 
         public void ProcessData(Package package, User sender)
         {
+            if (!package.clsName.Equals("GameCallPage"))
+            {
+                return;
+            }
+            switch (package.funName)
+            {
+                case "onStart":
+                    onStart(package.data, sender);
+                    break;
 
+
+                default:
+                    break;
+            }
         }
 
-        public void onStart()
+        public void onStart(string data, User sender)
         {
             //初始化游戏之后，这里接受手牌，和数量
+            CardsBuf cards = JsonSerializer.Deserialize<CardsBuf>(data);
+
+            List<int> buf = cards.buf;
+
+            for(int i = 0; i < buf.Count; i++)
+            {
+                
+            }
+
         }
 
-        public void onTimer()
+        public void onTimer(string data, User sender)
         {
             //这里对计时器进行更新
         }
 
-        public void onCall()
+        public void onCall(string data, User sender)
         {
             //别人叫牌完毕之后，也有三种几种结果，根据服务器传入的指示，显示部分叫牌按钮
             buttonCallNull.Visibility = Visibility.Hidden;
@@ -227,12 +248,12 @@ namespace NetworkWPF.Client
             buttonCallRob.Visibility = Visibility.Hidden;
         }
 
-        public void onCallFinish()
+        public void onCallFinish(string data, User sender)
         {
 
         }
 
-        public void onOut()
+        public void onOut(string data, User sender)
         {
             //别人或者自己出牌之后，结果只有两个，不要，和出牌，
             //先显示别人的操作
@@ -241,7 +262,7 @@ namespace NetworkWPF.Client
             buttonOut.Visibility = Visibility.Hidden;
         }
 
-        public void onGameFinish()
+        public void onGameFinish(string data, User sender)
         {
 
         }

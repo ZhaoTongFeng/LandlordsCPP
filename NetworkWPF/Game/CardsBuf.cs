@@ -34,13 +34,17 @@ namespace LandlordsCS
         AAABBBCD,//3n + n
         ERR
     }
+
+
     public class CardsBuf
     {
-        public int RANK_COUNT = 15;
-        public List<int> buf;
-        public int top, maxSize;
+        public static int RANK_COUNT = 15;
 
-        public CardsEnum mCardsMode;
+        public List<int> buf { get; set; }
+        public int top { get; set; }
+        public int maxSize { get; set; }
+
+        public CardsEnum mCardsMode { get; set; }
 
         public CardsBuf(int size)
         {

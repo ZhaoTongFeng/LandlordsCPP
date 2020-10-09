@@ -75,8 +75,6 @@ namespace LandlordsCS
         ////////////////////////////////////////
         public LandlordsGameMode()
         {
-            mGameSession = GameSession.PREPARE;
-            mCurPlayerIndex = 0;
             players = new List<Player>(3);
             mHander = new LandlordsHander(54);
             mDarkCards = new CardsBuf(3);
@@ -94,25 +92,48 @@ namespace LandlordsCS
 
         public void ReStart(User sender)
         {
-            //将牌发送到客户端
+            
+            mCurPlayerIndex = 0;
+
 
             mGameSession = GameSession.CALL;
-            mCurPlayerIndex = 0;
             mDarkCards.MakeEmpty();
             mCallState = CallState.NO;
-            for (int i = 0; i < 3; i++)
-            {
+
+
+            for (int i = 0; i < 3; i++){
                 mCallArr[i] = 0;
             }
+
+
             mCallArrCount = 0;
             mLandlordsIndex = -1;
             numCall = 0;
             inputPoint = -1;
 
+
             gate = false;
             mMissCount = 0;
+
+
             mLastCards.MakeEmpty();
             mPreCards.MakeEmpty();
+
+            mHander.HandCards(ref players, ref mDarkCards);
+
+            //将牌发送到客户端
+
+            //房间中的三个用户，和players一一对应
+            List<User> users = sender.room.users;
+
+            for(int i = 0; i < users.Count; i++)
+            {
+                User user = users[i];
+                Player player = players[i];
+
+                string data = JsonSerializer.Serialize(player.GetCards());
+                user.Send(new Package(Package.OPT, "GameCallPage", "onStart", data));
+            }
         }
 
 
@@ -288,7 +309,7 @@ namespace LandlordsCS
                     break;
                 case GameSession.START:
                     ReStart(sender);
-                    mHander.HandCards(ref players, ref mDarkCards);
+                    
                     break;
                 case GameSession.CALL:
                     if (inputPoint == -1)

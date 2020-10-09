@@ -189,16 +189,17 @@ namespace NetworkWPF.ServerD
 
             sender.Send(new Package(Package.OPT, "RoomPage", "onPrepare", ""));
 
-            //返回房间内人员信息
-            sender.room.SendToAllClient(new Package(Package.OPT, "RoomPage", "onUpdate", JsonSerializer.Serialize(sender.room.users)));
             IMService.SendMsgToRoom(sender.name+"准备就绪", sender);
 
-
-            //如果全部玩家都已经准备则开始游戏
+            //自动开始游戏:如果全部玩家都已经准备则开始游戏
             if (sender.room.IsAllPrepare())
             {
-                
+                sender.room.SendToAllClient(new Package(Package.OPT, "RoomPage", "onStartGame", ""));
+                sender.room.StartGame(sender);
+                IMService.SendMsgToRoom("游戏开始", sender);
             }
+            //返回房间内人员信息
+            sender.room.SendToAllClient(new Package(Package.OPT, "RoomPage", "onUpdate", JsonSerializer.Serialize(sender.room.users)));
 
         }
 

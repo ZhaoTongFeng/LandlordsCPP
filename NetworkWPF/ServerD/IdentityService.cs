@@ -33,13 +33,10 @@ namespace NetworkWPF
         }
         
         
-
         public void Login(string data,User sender)
         {
             User user = JsonSerializer.Deserialize<User>(data);
             user.isLogin = false;
-
-
 
             //查看本地用户数据是否存在
             if (!File.Exists(PATH_USER))

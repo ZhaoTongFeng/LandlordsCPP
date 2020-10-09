@@ -140,6 +140,10 @@ namespace NetworkWPF
 
         public void StartGame(User sender)
         {
+            for (int i = 0; i < count; i++)
+            {
+                users[i].state = PlayerState.Playing;
+            }
             GameMode.ReStart(sender);
         }
 
