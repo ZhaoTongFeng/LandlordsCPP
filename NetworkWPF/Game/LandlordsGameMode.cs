@@ -1,14 +1,10 @@
 ﻿
 using NetworkWPF;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Remoting.Lifetime;
-using System.Text;
+using System.Runtime.Remoting;
 using System.Text.Json;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace LandlordsCS
 {
@@ -36,7 +32,7 @@ namespace LandlordsCS
         Rob
     }
 
-    public class LandlordsGameMode : GameModeInterface,INetwork
+    public class LandlordsGameMode : GameModeInterface, INetwork
     {
 
 
@@ -55,6 +51,12 @@ namespace LandlordsCS
         /// </summary>
         List<Player> players;
 
+        List<User> users;
+
+        private Room mRoom;
+
+
+
         /// <summary>
         /// 下一个玩家
         /// </summary>
@@ -70,6 +72,9 @@ namespace LandlordsCS
         /// 荷官
         /// </summary>
         LandlordsHander mHander;
+
+
+
 
         ////////////////////////////////////////
         //开始阶段
@@ -103,7 +108,8 @@ namespace LandlordsCS
             mCallState = CallState.NO;
 
 
-            for (int i = 0; i < 3; i++){
+            for (int i = 0; i < 3; i++)
+            {
                 mCallArr[i] = 0;
             }
 
@@ -126,12 +132,12 @@ namespace LandlordsCS
             //将牌发送到客户端
 
             //房间中的三个用户，和players一一对应
-            List<User> users = sender.room.users;
+            users = sender.room.users;
 
 
-            
 
-            for(int i = 0; i < users.Count; i++)
+
+            for (int i = 0; i < users.Count; i++)
             {
                 Dictionary<string, string> data = new Dictionary<string, string>();
                 User user = users[i];
@@ -140,12 +146,12 @@ namespace LandlordsCS
                 //手牌
                 string cardsbuf = JsonSerializer.Serialize(player.GetCards());
                 data.Add("cards", cardsbuf);
-
-                int[] count_cards = new int[2];
+                
                 //另外两家手牌数量
-                for(int j = 1; j <= 2; j++)
+                int[] count_cards = new int[2];
+                for (int j = 1; j <= 2; j++)
                 {
-                    User user_next = users[(i+j)%3];
+                    User user_next = users[(i + j) % 3];
                     Player player_next = players[(i + j) % 3];
                     count_cards[j - 1] = player_next.GetCards().GetSize();
                 }
@@ -153,6 +159,7 @@ namespace LandlordsCS
 
                 //当前用户在房间中的位置
                 data.Add("indexInRoom", i.ToString());
+
                 //当前正在执行操作的玩家下标
                 data.Add("curOptIndex", mCurPlayerIndex.ToString());
 
@@ -164,7 +171,7 @@ namespace LandlordsCS
                 {
                     //这个玩家，应该用什么模式显示按钮
                     //是叫牌还是出牌由当前游戏阶段决定
-                    data.Add("this","1");
+                    data.Add("this", "1");
 
                     //开启倒计时
                     StartTimer();
@@ -177,7 +184,6 @@ namespace LandlordsCS
                 user.Send(new Package(Package.OPT, "GameCallPage", "onStart", JsonSerializer.Serialize(data)));
             }
         }
-        private Room mRoom;
 
         public void StartTimer()
         {
@@ -204,7 +210,7 @@ namespace LandlordsCS
 
                     mRoom.SendToAllClient(new Package(Package.OPT, "GameCallPage", "onTimer", tick.ToString()));
 
-                    
+
                 }
             }
         }
@@ -318,8 +324,12 @@ namespace LandlordsCS
         {
             if (mGameSession != GameSession.CALL)
             {
-                return;   
+                return;
             }
+            Dictionary<string, string> outData = new Dictionary<string, string>();
+
+
+
             //ProcessInput
             inputPoint = -1;
             if (mCallState == CallState.NO)
@@ -327,11 +337,13 @@ namespace LandlordsCS
                 if (data.Equals("不叫"))
                 {
                     inputPoint = 0;
+                    outData.Add("callState", "no");
                 }
                 else if (data.Equals("叫地主"))
                 {
                     mCallState = CallState.CALL;
                     inputPoint = 1;
+                    outData.Add("callState", "call");
                 }
             }
             else
@@ -339,12 +351,25 @@ namespace LandlordsCS
                 if (data.Equals("不叫"))
                 {
                     inputPoint = 0;
+                    outData.Add("callState", "no");
                 }
                 else if (data.Equals("抢地主"))
                 {
                     mCallState = CallState.Rob;
                     inputPoint = 2;
+                    outData.Add("callState", "rob");
                 }
+
+            }
+
+            int showState = 0;
+            if (mCallState == CallState.NO)
+            {
+                showState = 1;
+            }
+            else
+            {
+                showState = 2;
             }
 
             //Update
@@ -352,6 +377,9 @@ namespace LandlordsCS
             {
                 return;
             }
+
+
+
             numCall++;
             bool isFinishCall = false;
             if (numCall <= 2)
@@ -402,6 +430,9 @@ namespace LandlordsCS
                     mLandlordsIndex = mCallArr[0];
                 }
             }
+
+            outData.Add("curOptIndex", mCurPlayerIndex.ToString());
+
             if (isFinishCall)
             {
                 mGameSession = GameSession.PLAYING;
@@ -416,19 +447,47 @@ namespace LandlordsCS
                 NextPlayer();
                 GetCurPlayer().mTeamID = 2;
                 NextPlayer();
+
+                //地主下标
+                outData.Add("LandlordsIndex", mLandlordsIndex.ToString());
+                //三张底牌
+                outData.Add("DarkCards", JsonSerializer.Serialize(mDarkCards));
+
+                //按键模式，只能出牌
+                showState = 2;
+                outData.Add("showState", showState.ToString());
+
+                mRoom.SendToAllClient(new Package(Package.OPT, "GameCallPage", "onCallFinish", JsonSerializer.Serialize(outData)));
+            }
+            else
+            {
+
+                outData.Add("showState", showState.ToString());
+                mRoom.SendToAllClient(new Package(Package.OPT, "GameCallPage", "onCall", JsonSerializer.Serialize(outData)));
+
             }
         }
 
         private void HandOut(string data, User sender)
         {
-            if (mGameSession != GameSession.PREPARE)
+            if (mGameSession != GameSession.PLAYING)
             {
                 return;
             }
-            inputPoint = -1;
-            if (!mLastCards.IsEmpty())
+
+            Dictionary<string, string> outData = new Dictionary<string, string>();
+            //出牌是否成功默认为0成功
+            int isSucc = 0;
+            
+
+            //客户端传入：打出的牌的下标
+            List<int> indexs = JsonSerializer.Deserialize<List<int>>(data);
+            outData.Add("indexs", JsonSerializer.Serialize(indexs));
+            CardsBuf ca = GetCurPlayer().GetCards();
+            if (indexs.Count==0)
             {
-                if (data.Equals("不要"))
+                //如果上一出牌为空则允许不要
+                if (!mLastCards.IsEmpty())
                 {
                     NextPlayer();
                     mPreCards.MakeEmpty();
@@ -439,11 +498,22 @@ namespace LandlordsCS
                         mMissCount = 0;
                     }
                 }
+                else
+                {
+                    //BUG
+                    isSucc = 1;
+                }
             }
-            CardsBuf cards = JsonSerializer.Deserialize<CardsBuf>(data);
-            if (cards != null)
+            else
             {
-                CardsBuf ca = GetCurPlayer().GetCards();
+                //根据下标从玩家牌堆中取出手牌放到准备牌堆
+                mPreCards.MakeEmpty();
+                foreach (int item in indexs)
+                {
+                    mPreCards.Push(ca.buf[item]);
+                }
+
+                //出牌
                 if (ca.OutCards(ref mPreCards, ref mLastCards))
                 {
                     mLastCards.Copy(mPreCards);
@@ -451,21 +521,71 @@ namespace LandlordsCS
                     NextPlayer();
                     mMissCount = 0;
                 }
-                if (ca.IsEmpty())
+                else
                 {
-                    mGameSession = GameSession.FINISH;
+                    //返回_1：出牌失败，返回失败原因
+                    isSucc = 2;
+
+                    outData.Add("isSucc", isSucc.ToString());
+                    mRoom.SendToAllClient(new Package(Package.OPT, "GameCallPage", "onHandOut", JsonSerializer.Serialize(outData)));
+                    return;
                 }
             }
+
+
+            //返回_2：出牌成功
+
+            //打出的牌，长度可能为0
+            outData.Add("LastCards", JsonSerializer.Serialize(mLastCards));
+
+            //三个玩家手牌数量，无差别发送给客户端，由客户端自己处理
+
+            int[] count_cards = new int[3];
+            for (int j = 0; j < 3; j++)
+            {
+                count_cards[j] = players[j].GetCards().GetSize();
+            }
+            outData.Add("count_cards", JsonSerializer.Serialize(count_cards));
+
+            outData.Add("curOptIndex", mCurPlayerIndex.ToString());
+
+            outData.Add("isSucc", isSucc.ToString());
+
+            if (ca.IsEmpty())
+            {
+                //游戏结束
+                mGameSession = GameSession.FINISH;
+
+                mRoom.SendToAllClient(new Package(Package.OPT, "GameCallPage", "onGameFinish", JsonSerializer.Serialize(outData)));
+            }
+            else
+            {
+                int showState = 0;
+                if (!mLastCards.IsEmpty())
+                {
+                    showState = 2;
+                }
+                else
+                {
+                    showState = 1;
+                }
+                outData.Add("showState", showState.ToString());
+                for(int i = 0; i < users.Count; i++)
+                {
+                    if (i != (mCurPlayerIndex + 2) % 3)
+                    {
+                        users[i].Send(new Package(Package.OPT, "GameCallPage", "onHandOut", JsonSerializer.Serialize(outData)));
+                    }
+                    else
+                    {
+                        outData.Add("CurrentCards", JsonSerializer.Serialize(players[i].GetCards()));
+                        users[i].Send(new Package(Package.OPT, "GameCallPage", "onHandOut", JsonSerializer.Serialize(outData)));
+                    }
+
+                }
+
+            }
         }
-
-
-
-
-
-
-
-
-
 
 
         //////////////////////////////////////////////////////

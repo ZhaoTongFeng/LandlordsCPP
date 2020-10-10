@@ -43,7 +43,14 @@ namespace NetworkWPF.Client
         private static bool dirction = false;
 
 
-
+        public void Show()
+        {
+            this.Visibility = Visibility.Visible;
+        }
+        public void Hide()
+        {
+            this.Visibility = Visibility.Hidden;
+        }
 
 
 
