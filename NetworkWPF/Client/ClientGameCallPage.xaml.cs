@@ -164,6 +164,10 @@ namespace NetworkWPF.Client
                 buttonOutNull.Visibility = Visibility.Visible;
                 buttonOut.Visibility = Visibility.Visible;
             }
+            else
+            {
+
+            }
         }
         private void HideOut()
         {
@@ -323,31 +327,38 @@ namespace NetworkWPF.Client
             //三个玩家是同步的
 
             //如果计时器结束后，此玩家是当前操作玩家，则会自动调用各个阶段的默认事件
-            int tick = int.Parse(data);
-            App.Current.Dispatcher.InvokeAsync(() => {
-                leftTimerLabel.Content = "";
-                rightTimerLabel.Content = "";
-                bottomTimerLabel.Content = "";
 
-                //bottomTimerLabel.Visibility = Visibility.Hidden;
-                //leftTimerLabel.Visibility = Visibility.Hidden;
-                //rightTimerLabel.Visibility = Visibility.Hidden;
-                if (mIndexInRoom == mCurOptIndex)
-                {
-                    bottomTimerLabel.Content = tick.ToString();
-                    bottomTimerLabel.Visibility = Visibility.Visible;
-                }
-                else if ((mIndexInRoom + 2) % 3 == mCurOptIndex)
-                {
-                    leftTimerLabel.Content = tick.ToString();
-                    leftTimerLabel.Visibility = Visibility.Visible;
-                }
-                else if ((mIndexInRoom + 1) % 3 == mCurOptIndex)
-                {
-                    rightTimerLabel.Content = tick.ToString();
-                    rightTimerLabel.Visibility = Visibility.Visible;
-                }
-            });
+            try
+            {
+                int tick = int.Parse(data);
+                App.Current.Dispatcher.InvokeAsync(() => {
+                    leftTimerLabel.Content = "";
+                    rightTimerLabel.Content = "";
+                    bottomTimerLabel.Content = "";
+
+                    //bottomTimerLabel.Visibility = Visibility.Hidden;
+                    //leftTimerLabel.Visibility = Visibility.Hidden;
+                    //rightTimerLabel.Visibility = Visibility.Hidden;
+                    if (mIndexInRoom == mCurOptIndex)
+                    {
+                        bottomTimerLabel.Content = tick.ToString();
+                        bottomTimerLabel.Visibility = Visibility.Visible;
+                    }
+                    else if ((mIndexInRoom + 2) % 3 == mCurOptIndex)
+                    {
+                        leftTimerLabel.Content = tick.ToString();
+                        leftTimerLabel.Visibility = Visibility.Visible;
+                    }
+                    else if ((mIndexInRoom + 1) % 3 == mCurOptIndex)
+                    {
+                        rightTimerLabel.Content = tick.ToString();
+                        rightTimerLabel.Visibility = Visibility.Visible;
+                    }
+                });
+            }
+            catch 
+            {
+            }
         }
 
 
@@ -387,6 +398,8 @@ namespace NetworkWPF.Client
 
                 mCurOptIndex = LandlordsIndex;
 
+                CardsBuf landNewCards = JsonSerializer.Deserialize<CardsBuf>(dic["newCards"]);
+
 
                 HideCall();
 
@@ -407,13 +420,11 @@ namespace NetworkWPF.Client
                     //更新手牌数量
                     bottomNumLabel.Content = "20";
 
-                    //添加三张手牌
+                    //这里不要添加单独添加三张手牌，而是将所有手牌重新发送并重新生成
 
-                    for(int i = 17; i < 20; i++)
+                    for(int i = 0; i < 20; i++)
                     {
-
-                        mCardsWidgets[i].SetNum(CardsBuf.GetCardName(cards.buf[i - 17]));
-                        mCardsWidgets[i].Visibility = Visibility.Visible;
+                        mCardsWidgets[i].SetNum(CardsBuf.GetCardName(landNewCards.buf[i]));
                     }
 
                     //此回合
@@ -454,6 +465,9 @@ namespace NetworkWPF.Client
                     return;
                 }
                 HideOut();
+
+                mCurOptIndex = int.Parse(dic["curOptIndex"]);
+
                 //更新手牌数量
                 int[] count_cards = JsonSerializer.Deserialize<int[]>(dic["count_cards"]);
                 bottomNumLabel.Content = count_cards[mIndexInRoom].ToString();
@@ -471,14 +485,12 @@ namespace NetworkWPF.Client
                     for (int i = 0; i < LastCards.GetSize(); i++)
                     {
                         CardsWidget wi = mCenterCardsWidget[i];
-                        wi.Show();
                         wi.SetNum(CardsBuf.GetCardName(LastCards.buf[i]));
                     }
                 }
 
-                //当前玩家的上一个玩家手牌减掉
-                //其实就等于把当前剩余的牌发给他，然后重新显示
-                if (dic.ContainsKey("CurrentCards"))
+                //隐藏出牌的玩家打出的牌
+                if (mIndexInRoom == (mCurOptIndex + 2) % 3)
                 {
                     CardsBuf CurrentCards = JsonSerializer.Deserialize<CardsBuf>(dic["CurrentCards"]);
                     for (int i = 0; i < mCardsWidgets.Length; i++)
@@ -487,15 +499,17 @@ namespace NetworkWPF.Client
                     }
                     for (int i = 0; i < CurrentCards.GetSize(); i++)
                     {
-                        CardsWidget wi = mCenterCardsWidget[i];
-                        wi.Show();
+                        CardsWidget wi = mCardsWidgets[i];
                         wi.SetNum(CardsBuf.GetCardName(CurrentCards.buf[i]));
                     }
+
+
                 }
 
 
+
                 //当前玩家显示按钮
-                mCurOptIndex = int.Parse(dic["curOptIndex"]);
+
                 if (mIndexInRoom == mCurOptIndex)
                 {
                     int showState = int.Parse(dic["showState"]);
@@ -504,12 +518,14 @@ namespace NetworkWPF.Client
             });
         }
 
+
         public void onGameFinish(string data, User sender)
         {
             //游戏结束之后
             //弹出结算窗口
             //结算窗口除基本信息以外只显示确定按钮
         }
+
 
         private string GetCallStateName(string state)
         {

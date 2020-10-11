@@ -233,18 +233,19 @@ namespace NetworkWPF
                 try
                 {
                     receiveString = br.ReadString();
+
+                    Package pg = JsonSerializer.Deserialize<Package>(receiveString);
+                    for (int i = 0; i < networks.Count; i++)
+                    {
+                        networks[i].ProcessData(pg, this);
+                    }
                 }
                 catch
                 {
                     mNetState = NetState.DisConnected;
                     break;
                 }
-                
-                Package pg = JsonSerializer.Deserialize<Package>(receiveString);
-                for(int i=0;i< networks.Count; i++)
-                {
-                    networks[i].ProcessData(pg, this);
-                }
+
                 //foreach是只读的，如果在另外一个线程中修改之后，恰巧这里又在遍历就会报错
                 //foreach (INetwork item in networks)
                 //{
@@ -252,6 +253,7 @@ namespace NetworkWPF
                 //}
             }
         }
+
 
         /////////////////////////////////////////////////////////////////
         ///客户端

@@ -26,12 +26,14 @@ namespace NetworkWPF.Client
 
         public void SetNum(string str) {
             mTxt.Content = str;
+            SetUp(false);
+            Show();
         }
 
         public CardsWidget()
         {
             InitializeComponent();
-            isUp = false;
+            SetUp(false);
 
             this.MouseDown += mouseDown;
             this.MouseUp += mouseUp;
@@ -50,6 +52,7 @@ namespace NetworkWPF.Client
         public void Hide()
         {
             this.Visibility = Visibility.Hidden;
+            SetUp(false);
         }
 
 
@@ -81,15 +84,12 @@ namespace NetworkWPF.Client
         private void ChangeState(object sender)
         {
             CardsWidget wi = sender as CardsWidget;
-            if (wi.isUp)
-            {
-                Canvas.SetBottom(wi, 0);
-            }
-            else
-            {
-                Canvas.SetBottom(wi, 20);
-            }
-            wi.isUp = !wi.isUp;
+            wi.SetUp(!wi.isUp);
+        }
+        private void SetUp(bool isUp)
+        {
+            this.isUp = isUp;
+            Canvas.SetBottom(this, isUp == true ? 20 : 0);
         }
 
 

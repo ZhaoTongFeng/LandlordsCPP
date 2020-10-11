@@ -127,7 +127,7 @@ namespace LandlordsCS
             mLastCards.MakeEmpty();
             mPreCards.MakeEmpty();
 
-            mHander.HandCards(ref players, ref mDarkCards);
+            mCurPlayerIndex = mHander.HandCards(ref players, ref mDarkCards);
 
             //将牌发送到客户端
 
@@ -437,9 +437,13 @@ namespace LandlordsCS
             {
                 mGameSession = GameSession.PLAYING;
                 mCurPlayerIndex = mLandlordsIndex;
+
                 CardsBuf cardsBuf = GetCurPlayer().GetCards();
                 mDarkCards.Pop(ref cardsBuf, 3);
                 cardsBuf.SortRank(false);
+
+                //重新发送有序的手牌
+                outData.Add("newCards", JsonSerializer.Serialize(cardsBuf));
 
                 GetCurPlayer().mTeamID = 1;
                 NextPlayer();
@@ -454,8 +458,10 @@ namespace LandlordsCS
                 outData.Add("DarkCards", JsonSerializer.Serialize(mDarkCards));
 
                 //按键模式，只能出牌
-                showState = 2;
+                showState = 1;
                 outData.Add("showState", showState.ToString());
+
+                
 
                 mRoom.SendToAllClient(new Package(Package.OPT, "GameCallPage", "onCallFinish", JsonSerializer.Serialize(outData)));
             }
@@ -464,8 +470,8 @@ namespace LandlordsCS
 
                 outData.Add("showState", showState.ToString());
                 mRoom.SendToAllClient(new Package(Package.OPT, "GameCallPage", "onCall", JsonSerializer.Serialize(outData)));
-
             }
+
         }
 
         private void HandOut(string data, User sender)
@@ -482,7 +488,7 @@ namespace LandlordsCS
 
             //客户端传入：打出的牌的下标
             List<int> indexs = JsonSerializer.Deserialize<List<int>>(data);
-            outData.Add("indexs", JsonSerializer.Serialize(indexs));
+
             CardsBuf ca = GetCurPlayer().GetCards();
             if (indexs.Count==0)
             {
@@ -497,9 +503,11 @@ namespace LandlordsCS
                         mLastCards.MakeEmpty();
                         mMissCount = 0;
                     }
+                    Server.Log("不要");
                 }
                 else
                 {
+                    Server.Log("不要:上一出牌不为空");
                     //BUG
                     isSucc = 1;
                 }
@@ -520,11 +528,14 @@ namespace LandlordsCS
                     mPreCards.SetEmpty();
                     NextPlayer();
                     mMissCount = 0;
+                    Server.Log("出牌成功");
                 }
                 else
                 {
+
                     //返回_1：出牌失败，返回失败原因
                     isSucc = 2;
+                    Server.Log("出牌失败");
 
                     outData.Add("isSucc", isSucc.ToString());
                     mRoom.SendToAllClient(new Package(Package.OPT, "GameCallPage", "onHandOut", JsonSerializer.Serialize(outData)));
@@ -551,6 +562,11 @@ namespace LandlordsCS
 
             outData.Add("isSucc", isSucc.ToString());
 
+            int showState = mLastCards.IsEmpty() ? 1 : 2;
+            outData.Add("showState", showState.ToString());
+
+            outData.Add("CurrentCards", JsonSerializer.Serialize(ca));
+
             if (ca.IsEmpty())
             {
                 //游戏结束
@@ -560,31 +576,10 @@ namespace LandlordsCS
             }
             else
             {
-                int showState = 0;
-                if (!mLastCards.IsEmpty())
-                {
-                    showState = 2;
-                }
-                else
-                {
-                    showState = 1;
-                }
-                outData.Add("showState", showState.ToString());
-                for(int i = 0; i < users.Count; i++)
-                {
-                    if (i != (mCurPlayerIndex + 2) % 3)
-                    {
-                        users[i].Send(new Package(Package.OPT, "GameCallPage", "onHandOut", JsonSerializer.Serialize(outData)));
-                    }
-                    else
-                    {
-                        outData.Add("CurrentCards", JsonSerializer.Serialize(players[i].GetCards()));
-                        users[i].Send(new Package(Package.OPT, "GameCallPage", "onHandOut", JsonSerializer.Serialize(outData)));
-                    }
 
-                }
-
+                mRoom.SendToAllClient(new Package(Package.OPT, "GameCallPage", "onHandOut", JsonSerializer.Serialize(outData)));
             }
+            PrintCards();
         }
 
 
@@ -614,7 +609,17 @@ namespace LandlordsCS
         //服务器不需要处理到屏幕的输出，只需要通知客户端状态，客户端根据状态进行相应的显示
         public string GenerateOutput(string data, User sender)
         {
+
             return "";
+        }
+
+        private void PrintCards()
+        {
+
+            for (int i = 0; i < 3; i++)
+            {
+                Server.Log(players[i].GetCards().GetPrintName());
+            }
         }
 
 

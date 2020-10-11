@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NetworkWPF;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -71,7 +72,7 @@ namespace LandlordsCS
             }
             else
             {
-                for(int i = 0; i < cards.top; i++)
+                for(int i = 0; i <= cards.top; i++)
                 {
                     buf[i] = cards.buf[i];
                 }
@@ -152,13 +153,12 @@ namespace LandlordsCS
             }
         }
 
-        public void ComputeCardsMode()
+        private void ComputeCardsMode()
         {
             int size = GetSize();
 
             //出牌模式
             mCardsMode = CardsEnum.ERR;
-
 
             //各个点数出现的张数
             int[] arr_nums;
@@ -249,9 +249,13 @@ namespace LandlordsCS
                     }
                 }
             }
+
+            
         }
 
-        public bool Compare(CardsBuf A,CardsBuf B)
+
+
+        private bool Compare(CardsBuf A,CardsBuf B)
         {
             CardsEnum modeA = A.mCardsMode;
             CardsEnum modeB = B.mCardsMode;
@@ -263,26 +267,26 @@ namespace LandlordsCS
             }
             if (modeB == CardsEnum.JJ)
             {
+                Server.Log("上次是王炸");
                 return false;
             }
 
-            //一个是炸弹，另一个不是炸弹
             if (modeA == CardsEnum.AAAA && modeB != CardsEnum.AAAA)
             {
                 return true;
             }
             if (modeA != CardsEnum.AAAA && modeB == CardsEnum.AAAA)
             {
+                Server.Log("上次是炸弹，当前不是炸弹");
                 return false;
             }
 
-            //类型不同
             if (modeA != modeB)
             {
+                Server.Log("类型不同");
                 return false;
             }
 
-            //相同类型但不大于上一出牌
             int ARank = A.buf[0];
             int BRank = B.buf[0];
             if (ARank > BRank)
@@ -291,9 +295,12 @@ namespace LandlordsCS
             }
             else
             {
+                Server.Log(String.Format("相同类型但不大于上一出牌:当前:{0},上次:{1}", ARank, BRank));
                 return false;
             }
         }
+
+
 
         public bool OutCards(ref CardsBuf cards_pre, ref CardsBuf cards_last)
         {
@@ -302,17 +309,23 @@ namespace LandlordsCS
 
             if (count_pre == 0)
             {
+                Server.Log("打出0张牌");
                 return false;
             }
+            Server.Log(String.Format("当前打出的牌型：{0}", cards_pre.GetCardsModeName()));
+
             //不是正确的牌型
             cards_pre.ComputeCardsMode();
             if (cards_pre.mCardsMode == CardsEnum.ERR)
             {
+                
                 return false;
             }
             //不满足出牌条件
             if (!cards_last.IsEmpty() && !Compare(cards_pre, cards_last))
             {
+
+                Server.Log(String.Format("上一打出的牌型：{0}", cards_last.GetCardsModeName()));
                 return false;
             }
 
@@ -350,6 +363,7 @@ namespace LandlordsCS
             top = tempCount - 1;
             return true;
         }
+
         public void Shuffle()
         {
             int indexA, indexB, temp;
@@ -481,13 +495,20 @@ namespace LandlordsCS
             }
         }
 
+
+
+
+
+        ////////////////////////////////////////////////////////////////////////////////////
+        //辅助函数
+        ////////////////////////////////////////////////////////////////////////////////////
         public string GetPrintSource()
         {
             string str = "";
             for (int i = 0; i < GetSize(); i++)
             {
                 str += buf[i] + " ";
-                
+
             }
             str += "\n\n";
             return str;
@@ -506,9 +527,6 @@ namespace LandlordsCS
         }
 
 
-
-
-        //辅助函数
         public string GetCardsModeName()
         {
             switch (mCardsMode)
@@ -549,6 +567,8 @@ namespace LandlordsCS
                     return "NULL";
             }
         }
+
+        //检测数组是否连续
         public bool IsSequence(int[] arr_num, int beg, int end)
         {
             for (int i = beg; i < end; i++)
@@ -560,13 +580,22 @@ namespace LandlordsCS
             }
             return true;
         }
+
+        //数值：3 4 5 6 7 8 9 10 11 12 13 14 
+        //名字：3 4 5 6 7 8 9 10  j  q  k  a rj lj
+        //权重：1 2 3 4 5 6 7 8   9 10 11 12 13 14
+
         public int GetCardRank(int n)
         {
             if (n == 54)
             {
-                return 14;
+                return 15;
             }
             else if (n == 53)
+            {
+                return 14;
+            }
+            else if (n % 13 == 2)
             {
                 return 13;
             }
@@ -583,6 +612,7 @@ namespace LandlordsCS
                 return n % 13 - 2;
             }
         }
+
         public static string GetCardName(int n)
         {
             string str;
@@ -618,6 +648,8 @@ namespace LandlordsCS
             }
             return str;
         }
+
+
         public void GetNumsAndTimes(out int[] arr_nums, out int[] arr_times, out int index_beg)
         {
             int size = GetSize();

@@ -125,11 +125,19 @@ namespace NetworkWPF.Client
 
         public void onTestDelay(string data, User sender)
         {
-            long last = long.Parse(data);
-            long delay = Util.GetTimeStamp() - last;
-            App.Current.Dispatcher.InvokeAsync(() => {
-                labelDelay.Content = "延迟" + delay +" ms";
-            });
+            try
+            {
+                long last = long.Parse(data);
+                long delay = Util.GetTimeStamp() - last;
+                App.Current.Dispatcher.InvokeAsync(() => {
+                    labelDelay.Content = "延迟" + delay + " ms";
+                });
+            }
+            catch
+            {
+
+            }
+
         }
 
 
