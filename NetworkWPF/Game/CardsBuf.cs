@@ -287,8 +287,8 @@ namespace LandlordsCS
                 return false;
             }
 
-            int ARank = A.buf[0];
-            int BRank = B.buf[0];
+            int ARank = CardsBuf.GetCardRank(A.buf[0]);
+            int BRank = CardsBuf.GetCardRank(B.buf[0]); 
             if (ARank > BRank)
             {
                 return true;
@@ -312,10 +312,12 @@ namespace LandlordsCS
                 Server.Log("打出0张牌");
                 return false;
             }
-            Server.Log(String.Format("当前打出的牌型：{0}", cards_pre.GetCardsModeName()));
-
+           
             //不是正确的牌型
             cards_pre.ComputeCardsMode();
+            Server.Log(String.Format("当前打出的牌型：{0}", cards_pre.GetCardsModeName()));
+            Server.Log(String.Format("上一打出的牌型：{0}", cards_last.GetCardsModeName()));
+
             if (cards_pre.mCardsMode == CardsEnum.ERR)
             {
                 
@@ -325,9 +327,11 @@ namespace LandlordsCS
             if (!cards_last.IsEmpty() && !Compare(cards_pre, cards_last))
             {
 
-                Server.Log(String.Format("上一打出的牌型：{0}", cards_last.GetCardsModeName()));
+                
                 return false;
             }
+
+
 
             //满足条件，将牌打出
             //出牌之后不需要左移，只需要将没有被打出的牌按照原本的顺序添加到新的数组中
@@ -585,7 +589,7 @@ namespace LandlordsCS
         //名字：3 4 5 6 7 8 9 10  j  q  k  a rj lj
         //权重：1 2 3 4 5 6 7 8   9 10 11 12 13 14
 
-        public int GetCardRank(int n)
+        public static int GetCardRank(int n)
         {
             if (n == 54)
             {

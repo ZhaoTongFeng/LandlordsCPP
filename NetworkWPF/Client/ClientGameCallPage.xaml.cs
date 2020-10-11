@@ -1,7 +1,9 @@
 ﻿using LandlordsCS;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Media;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -210,14 +212,27 @@ namespace NetworkWPF.Client
             List<int> indexs = new List<int>();
             if (button != null)
             {
-                for(int i = 0; i < mCardsWidgets.Length; i++)
+                if (button.Name.Equals("buttonOutNull"))
                 {
-                    if (mCardsWidgets[i].isUp)
+
+                }
+                else
+                {
+                    for (int i = 0; i < mCardsWidgets.Length; i++)
                     {
-                        indexs.Add(i);
+                        if (mCardsWidgets[i].isUp)
+                        {
+                            indexs.Add(i);
+                        }
                     }
                 }
+
                 user.Send(new Package(Package.OPT, "LandlordsGameMode", "HandOut", JsonSerializer.Serialize(indexs)));
+                for(int i = 0; i < mCardsWidgets.Length; i++)
+                {
+                    mCardsWidgets[i].SetUp(false);
+
+                }
             }
         }
 
@@ -473,6 +488,29 @@ namespace NetworkWPF.Client
                 bottomNumLabel.Content = count_cards[mIndexInRoom].ToString();
                 rightNumLabel.Content = count_cards[(mIndexInRoom+1)%3].ToString();
                 leftNumLabel.Content = count_cards[(mIndexInRoom+2)%3].ToString();
+                for(int i = 0; i < mLeftCardsWidget.Length; i++)
+                {
+                    if(i< count_cards[(mIndexInRoom + 2) % 3])
+                    {
+                        mLeftCardsWidget[i].Show();
+                    }
+                    else
+                    {
+                        mLeftCardsWidget[i].Hide();
+                    }
+                }
+                for (int i = 0; i < mRightCardsWidget.Length; i++)
+                {
+                    if (i < count_cards[(mIndexInRoom + 1) % 3])
+                    {
+                        mRightCardsWidget[i].Show();
+                    }
+                    else
+                    {
+                        mRightCardsWidget[i].Hide();
+                    }
+                }
+
 
                 //把打出的牌添加到中间
                 for (int i = 0; i < mCenterCardsWidget.Length; i++)
@@ -502,14 +540,9 @@ namespace NetworkWPF.Client
                         CardsWidget wi = mCardsWidgets[i];
                         wi.SetNum(CardsBuf.GetCardName(CurrentCards.buf[i]));
                     }
-
-
                 }
 
-
-
                 //当前玩家显示按钮
-
                 if (mIndexInRoom == mCurOptIndex)
                 {
                     int showState = int.Parse(dic["showState"]);
@@ -524,6 +557,10 @@ namespace NetworkWPF.Client
             //游戏结束之后
             //弹出结算窗口
             //结算窗口除基本信息以外只显示确定按钮
+            clientWindow.clientGameResultPage.Show(this);
+            //clientWindow.clientGameResultPage.onGameFinish(data, sender);
+
+
         }
 
 
@@ -547,7 +584,4 @@ namespace NetworkWPF.Client
             }
         }
     }
-
-
-
 }

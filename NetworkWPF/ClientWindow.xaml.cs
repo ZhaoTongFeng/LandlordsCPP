@@ -40,14 +40,7 @@ namespace NetworkWPF
             clientLoginPage.SetUser(users[index]);
         }
         ////////////////////////////////////////////////////////////
-
-
-
-
-
-
         public User user;
-
 
         public ClientLoginPage clientLoginPage;
         public ClientIMPage clientIMPage;
@@ -56,8 +49,7 @@ namespace NetworkWPF
         public ClientGamePage clientGamePage;
         public ClientGameCallPage clientGameCallPage;
         public ClientGamePreparePage clientGamePreparePage;
-
-
+        public ClientGameResultPage clientGameResultPage;
 
         public ClientWindow()
         {
@@ -104,6 +96,11 @@ namespace NetworkWPF
             clientGamePreparePage.user = user;
             clientGamePreparePage.clientWindow = this;
             user.Register(clientGamePreparePage);
+
+            clientGameResultPage = new ClientGameResultPage();
+            clientGameResultPage.user = user;
+            clientGameResultPage.clientWindow = this;
+            user.Register(clientGameResultPage);
 
 
             //设置当前Page

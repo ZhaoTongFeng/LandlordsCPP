@@ -72,6 +72,9 @@
     <Compile Include="Client\ClientGamePreparePage.xaml.cs">
       <DependentUpon>ClientGamePreparePage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Client\ClientGameResultPage.xaml.cs">
+      <DependentUpon>ClientGameResultPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Client\ClientIMPage.xaml.cs">
       <DependentUpon>ClientIMPage.xaml</DependentUpon>
     </Compile>
@@ -121,6 +124,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Client\ClientGamePreparePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Client\ClientGameResultPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -199,6 +206,10 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Image\Cards.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Music\background-2.mp3" />
+    <Content Include="Music\background.wav" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

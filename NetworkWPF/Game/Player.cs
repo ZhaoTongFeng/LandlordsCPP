@@ -10,14 +10,12 @@ namespace LandlordsCS
     public class Player
     {
         public string mName;
-        public int mBalance;
         public int mTeamID;
         public List<CardsBuf> cardsBufs;
 
         public Player(string name,int balance)
         {
             mName = name;
-            mBalance = balance;
             mTeamID = -1;
             cardsBufs = new List<CardsBuf>();
         }

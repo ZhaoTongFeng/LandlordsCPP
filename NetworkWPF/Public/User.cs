@@ -48,6 +48,8 @@ namespace NetworkWPF
 
         public bool isLogin { get; set; }
 
+        public int balance { get; set; }
+
         //游戏状态
         public PlayerState state { get; set; }
 

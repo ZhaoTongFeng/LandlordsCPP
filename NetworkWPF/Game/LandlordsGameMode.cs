@@ -75,7 +75,25 @@ namespace LandlordsCS
 
 
 
+        public void ProcessData(Package package, User sender)
+        {
+            if (!package.clsName.Equals("LandlordsGameMode"))
+            {
+                return;
+            }
+            switch (package.funName)
+            {
+                case "Call":
+                    Call(package.data, sender);
+                    break;
+                case "HandOut":
+                    HandOut(package.data, sender);
+                    break;
 
+                default:
+                    break;
+            }
+        }
         ////////////////////////////////////////
         //开始阶段
         ////////////////////////////////////////
@@ -253,72 +271,7 @@ namespace LandlordsCS
         int inputPoint = -1;
 
 
-        ////////////////////////////////////////
-        //出牌阶段
-        ////////////////////////////////////////
 
-        //将选中的牌放到一个列表中，检测是否符合牌型，并记录牌型
-        bool gate = false;
-
-        //两家不要牌则判定为新回合开始
-        int mMissCount = 0;
-
-        //上一出牌
-        CardsBuf mLastCards;
-
-        //准备出的牌
-        //将选择的牌放到这儿
-        CardsBuf mPreCards;
-
-
-        ////////////////////////////////////////
-        //结算阶段
-        ////////////////////////////////////////
-
-
-        /// <summary>
-        /// 结算是否结束
-        /// </summary>
-        bool isFinish = false;
-
-        /// <summary>
-        /// 胜利的队伍
-        /// </summary>
-        int winTeam = 0;
-
-        /// <summary>
-        /// 结算结果
-        /// </summary>
-        string mSettleContent;
-
-        /// <summary>
-        /// 结算
-        /// </summary>
-        public void Settle()
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public void ProcessData(Package package, User sender)
-        {
-            if (!package.clsName.Equals("LandlordsGameMode"))
-            {
-                return;
-            }
-            switch (package.funName)
-            {
-                case "Call":
-                    Call(package.data, sender);
-                    break;
-                case "HandOut":
-                    HandOut(package.data, sender);
-                    break;
-
-                default:
-                    break;
-            }
-        }
 
         private void Call(string data, User sender)
         {
@@ -461,7 +414,7 @@ namespace LandlordsCS
                 showState = 1;
                 outData.Add("showState", showState.ToString());
 
-                
+
 
                 mRoom.SendToAllClient(new Package(Package.OPT, "GameCallPage", "onCallFinish", JsonSerializer.Serialize(outData)));
             }
@@ -473,6 +426,30 @@ namespace LandlordsCS
             }
 
         }
+
+        ////////////////////////////////////////
+        //出牌阶段
+        ////////////////////////////////////////
+
+        //将选中的牌放到一个列表中，检测是否符合牌型，并记录牌型
+        bool gate = false;
+
+        //两家不要牌则判定为新回合开始
+        int mMissCount = 0;
+
+        //上一出牌
+        CardsBuf mLastCards;
+
+        //准备出的牌
+        //将选择的牌放到这儿
+        CardsBuf mPreCards;
+
+
+
+
+
+
+
 
         private void HandOut(string data, User sender)
         {
@@ -488,8 +465,9 @@ namespace LandlordsCS
 
             //客户端传入：打出的牌的下标
             List<int> indexs = JsonSerializer.Deserialize<List<int>>(data);
+            Player handOutPlayer = GetCurPlayer();
+            CardsBuf ca = handOutPlayer.GetCards();
 
-            CardsBuf ca = GetCurPlayer().GetCards();
             if (indexs.Count==0)
             {
                 //如果上一出牌为空则允许不要
@@ -503,11 +481,10 @@ namespace LandlordsCS
                         mLastCards.MakeEmpty();
                         mMissCount = 0;
                     }
-                    Server.Log("不要");
                 }
                 else
                 {
-                    Server.Log("不要:上一出牌不为空");
+                    Server.Log("ERR:不要失败，上一出牌不为空");
                     //BUG
                     isSucc = 1;
                 }
@@ -557,30 +534,92 @@ namespace LandlordsCS
                 count_cards[j] = players[j].GetCards().GetSize();
             }
             outData.Add("count_cards", JsonSerializer.Serialize(count_cards));
-
             outData.Add("curOptIndex", mCurPlayerIndex.ToString());
-
             outData.Add("isSucc", isSucc.ToString());
-
             int showState = mLastCards.IsEmpty() ? 1 : 2;
             outData.Add("showState", showState.ToString());
-
             outData.Add("CurrentCards", JsonSerializer.Serialize(ca));
+
+            mRoom.SendToAllClient(new Package(Package.OPT, "GameCallPage", "onHandOut", JsonSerializer.Serialize(outData)));
+
 
             if (ca.IsEmpty())
             {
                 //游戏结束
                 mGameSession = GameSession.FINISH;
 
-                mRoom.SendToAllClient(new Package(Package.OPT, "GameCallPage", "onGameFinish", JsonSerializer.Serialize(outData)));
-            }
-            else
-            {
+                //胜利队伍
+                winTeam = handOutPlayer.mTeamID;
 
-                mRoom.SendToAllClient(new Package(Package.OPT, "GameCallPage", "onHandOut", JsonSerializer.Serialize(outData)));
+
+                Dictionary<string, string> outFinishData = new Dictionary<string, string>();
+                //奖罚金额(arr[0]地主积分，arr[1]农民)
+                mHander.Settle(players, users, winTeam, mLandlordsIndex, out int[] points);
+                outFinishData.Add("points",JsonSerializer.Serialize(points));
+                //int winTeam = arr[5];
+                //int landlordIndex = arr[6];
+
+                //三个用户名
+                string[] userNames = new string[3];
+                userNames[0] = users[mLandlordsIndex].name;
+                userNames[1] = users[(mLandlordsIndex+1)%3].name;
+                userNames[2] = users[(mLandlordsIndex+2)%3].name;
+                outFinishData.Add("userNames", JsonSerializer.Serialize(userNames));
+
+
+                for (int i = 0; i < users.Count; i++)
+                {
+                    User user = users[i];
+                    if (players[i].mTeamID == winTeam)
+                    {
+                        bool isWin = true;
+                        outFinishData.Add("isWin", isWin.ToString());
+                    }
+                    else
+                    {
+                        bool isWin = false;
+                        outFinishData.Add("isWin", isWin.ToString());
+                    }
+                    if (i == mLandlordsIndex)
+                    {
+                        bool isLand = true;
+                        outFinishData.Add("isLand", isLand.ToString());
+                    }
+                    else
+                    {
+                        bool isLand = false;
+                        outFinishData.Add("isLand", isLand.ToString());
+                    }
+                    user.Send(new Package(Package.OPT, "GameCallPage", "onGameFinish", JsonSerializer.Serialize(outFinishData)));
+                    user.Send(new Package(Package.OPT, "GameResultPage", "onGameFinish", JsonSerializer.Serialize(outFinishData)));
+                }
             }
-            PrintCards();
         }
+
+
+        ////////////////////////////////////////
+        //结算阶段
+        ////////////////////////////////////////
+
+        /// <summary>
+        /// 胜利的队伍
+        /// </summary>
+        int winTeam = 0;
+
+        /// <summary>
+        /// 结算结果
+        /// </summary>
+        string mSettleContent;
+
+        /// <summary>
+        /// 结算
+        /// </summary>
+        public void Settle()
+        {
+
+        }
+
+
 
 
         //////////////////////////////////////////////////////
@@ -589,27 +628,19 @@ namespace LandlordsCS
         /// 只剩发牌，叫牌，出牌
         //////////////////////////////////////////////////////
 
-
-
-
         //先检测此回合是否为本地玩家进行操作，如果是则将按键对应的指令发送给服务器
         //指令同步，对于指令类游戏，不需要在本地运行任何游戏性操作，只需要相关的游戏状态，比如游戏是否结束，手牌和数量，赢家和输家
         public void ProcessInput(string data, User sender)
         {
-
-
         }
         //不需要在本地处理各种操作，而是放到服务器，服务器告诉谁应该可以做什么
-
         public void UpdateGame(string data, User sender)
         {
 
         }
-
         //服务器不需要处理到屏幕的输出，只需要通知客户端状态，客户端根据状态进行相应的显示
         public string GenerateOutput(string data, User sender)
         {
-
             return "";
         }
 

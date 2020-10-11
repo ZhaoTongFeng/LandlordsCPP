@@ -86,7 +86,7 @@ namespace NetworkWPF.Client
             CardsWidget wi = sender as CardsWidget;
             wi.SetUp(!wi.isUp);
         }
-        private void SetUp(bool isUp)
+        public void SetUp(bool isUp)
         {
             this.isUp = isUp;
             Canvas.SetBottom(this, isUp == true ? 20 : 0);

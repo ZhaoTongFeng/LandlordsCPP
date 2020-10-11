@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Media;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -23,16 +24,10 @@ namespace NetworkWPF.Client
     /// </summary>
     public partial class ClientRoomPage : Page,INetwork
     {
-
         public ClientRoomPage()
         {
             InitializeComponent();
-
-
-
         }
-
-        
 
         public User user;
         public ClientWindow clientWindow;
@@ -42,8 +37,15 @@ namespace NetworkWPF.Client
             App.Current.Dispatcher.InvokeAsync(() => {
                 clientWindow.mFrameLeft.Content = this;
             });
-            
+            SoundPlayer soundPlayer = new SoundPlayer();
+
+            soundPlayer.SoundLocation = @"D:\VSProject\ZhaoTongFeng\LandlordsCPP\NetworkWPF\Music\background.wav";
+
+            soundPlayer.Load();
+            //soundPlayer.Play();
+            soundPlayer.PlayLooping();
         }
+
         private void PrepareBtn_Click(object sender, RoutedEventArgs e)
         {
 
@@ -121,7 +123,6 @@ namespace NetworkWPF.Client
             });
             
         }
-
 
         public void onTestDelay(string data, User sender)
         {

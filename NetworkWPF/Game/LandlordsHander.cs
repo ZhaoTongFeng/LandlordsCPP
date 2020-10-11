@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NetworkWPF;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -73,38 +74,49 @@ namespace LandlordsCS
 			return firIndex;
 		}
 
-		public void Settle(ref List<Player> players, int winTeam, int landlordIndex)
+		public void Settle(List<Player> players,List<User> users, int winTeam, int landlordIndex,out int[] data)
 		{
 			int dou_coin, sig_coin;
 			dou_coin = rate * baseBet - water;
 			sig_coin = (int)(dou_coin / 2.0f);
-			int i = 0;
-            foreach (Player item in players)
+
+
+			data = new int[2];
+
+
+
+			for (int i = 0; i < users.Count; i++)
             {
-				if (item.mTeamID == winTeam)
+				User user = users[i];
+				Player player = players[i];
+				if (player.mTeamID == winTeam)
 				{
 					if (i == landlordIndex)
 					{
-						item.mBalance += dou_coin;
+						user.balance += dou_coin;
+						data[0] = dou_coin;
 					}
 					else
 					{
-						item.mBalance += sig_coin;
+						user.balance += sig_coin;
+						data[1] = sig_coin;
 					}
 				}
 				else
 				{
 					if (i == landlordIndex)
 					{
-						item.mBalance += -1*dou_coin;
+						user.balance += -1 * dou_coin;
+						data[0] = -1 * dou_coin;
 					}
 					else
 					{
-						item.mBalance += -1*sig_coin;
+						user.balance += -1 * sig_coin;
+						data[1] = -1 * sig_coin;
 					}
 				}
-				i++;
 			}
+
 		}
 
 
