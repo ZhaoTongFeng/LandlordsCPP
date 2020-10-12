@@ -74,7 +74,6 @@ namespace NetworkWPF.Client
             bool isWin = Boolean.Parse(dic["isWin"]);
             bool isLand = Boolean.Parse(dic["isLand"]);
 
-
             App.Current.Dispatcher.InvokeAsync(() => {
                 if (isWin)
                 {
